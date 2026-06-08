@@ -7,10 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// التعديل هنا: شلنا الـ ../ عشان السيرفر يقرأ فولدر public مباشرة
+// التعديل هنا: شلنا الـ ../ ليصبح المسار صحيحاً
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 🔌 الربط بقاعدة البيانات (بياخد الرابط من Variables في Railway)
+// 🔌 الربط بقاعدة البيانات
 const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI)
@@ -34,10 +34,10 @@ const SystemSchema = new mongoose.Schema({
 });
 const System = mongoose.model('System', SystemSchema);
 
-// --- كل الـ API Routes الخاصة بك هنا ---
-// (ضع هنا باقي أكواد الـ app.get والـ app.post الخاصة باللعبة)
+// --- كل الـ API Routes الخاصة بك (التسجيل، الأدمن، إلخ) ---
+// ملاحظة: تأكد أن جميع الـ app.post والـ app.get الخاصة باللعبة موجودة هنا
 
-// التعديل الأهم هنا: إجبار السيرفر على عرض ملف الـ HTML إذا لم يجد مساراً آخر
+// إجبار السيرفر على عرض ملف الـ HTML الرئيسي دائماً
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
