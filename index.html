@@ -18,16 +18,10 @@
         .btn-register { width: 100%; padding: 10px; background-color: #252525; color: #ffc107; border: 1px solid #ffc107; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-register:hover { background-color: #ffc107; color: #121212; }
         
-        .info-wrapper { position: absolute; top: 15px; left: 15px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .info-icon { background-color: #333; color: #00adb5; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .info-icon:hover { background-color: #00adb5; color: #fff; }
-        .info-text { font-size: 11px; color: #888; white-space: nowrap; }
-        
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-        .modal-content { background-color: #1e1e1e; padding: 30px; border-radius: 12px; max-width: 500px; width: 100%; text-align: right; border: 1px solid #00adb5; position: relative; }
-        .modal-content h3 { color: #00adb5; margin-bottom: 15px; text-align: center; }
-        .modal-content p { color: #dddddd; font-size: 15px; line-height: 1.6; margin-bottom: 10px; }
-        .close-modal { background-color: #ff4444; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 15px; display: block; width: 100%; font-weight: bold; }
+        /* تصميم المودال الموحد للرسائل */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background-color: #1e1e1e; padding: 30px; border-radius: 12px; max-width: 400px; width: 100%; text-align: center; border: 1px solid #00adb5; }
+        .close-modal { background-color: #00adb5; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-top: 20px; width: 100%; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -35,13 +29,7 @@
 <body>
 
     <div class="login-container">
-        <div class="info-wrapper">
-            <div class="info-icon" onclick="toggleModal(true)">؟</div>
-            <span class="info-text">اضغط هنا لفهم فكرة الموقع</span>
-        </div>
-        
-        <h2 style="margin-top: 55px;" id="formTitle">تسجيل الدخول</h2>
-        
+        <h2 style="margin-top: 20px;" id="formTitle">تسجيل الدخول</h2>
         <div class="input-group">
             <label>اسم المستخدم</label>
             <input type="text" id="username" placeholder="ادخل اسم حسابك">
@@ -50,22 +38,14 @@
             <label>كلمة السر</label>
             <input type="password" id="password" placeholder="••••••••">
         </div>
-        
         <button class="btn-login" id="mainBtn" onclick="login()">دخول</button>
         <button class="btn-register" id="toggleBtn" onclick="toggleForm()">ليس لديك حساب؟ إنشاء حساب جديد ✨</button>
     </div>
 
-    <div class="modal" id="infoModal">
+    <div class="modal" id="msgModal">
         <div class="modal-content">
-            <h3>فكرة الموقع وشرح اللعبة</h3>
-            <p><strong>أهلاً بك يا بطل! إليك طريقة عمل الموقع بالتفصيل:</strong></p>
-            <p>1. الموقع يعرض قصة غامضة في المنتصف وبها لغز سري.</p>
-            <p>2. عليك قراءة القصة بذكاء واستنتاج كلمة السر الصحيحة وحلها من خلال المربع المخصص.</p>
-            <p>3. يوجد تلميح بجانب مربع الإجابة يضعه الأدمن لمساعدتك.</p>
-            <p>4. <strong>قانون الفوز:</strong> أول شخص يكتب كلمة السر الصحيحة يظهر له (مبروك أنت عبقرى) ويحصل على فرصة لكتابة قصته الخاصة ولغزه الجديد ليراها الأدمن ويقرر نشرها باسمك!</p>
-            <p>5. إذا قمت بكتابة الحل الصحيح ولكن قام شخص آخر بسبقك، سيظهر لك الموقع (كان غيرك أشطر واحد سبقاق).</p>
-            <p>6. يتم تجديد القصص كل 24 ساعة، وهناك لوحة (أبطال القصة) تعرض أعلى 100 لاعب جمعوا نقاطاً.</p>
-            <button class="close-modal" onclick="toggleModal(false)">إغلاق وفهمت الفكرة</button>
+            <p id="msgText" style="font-size: 18px; margin-bottom: 10px;"></p>
+            <button class="close-modal" onclick="document.getElementById('msgModal').style.display='none'">حسناً</button>
         </div>
     </div>
 
@@ -81,40 +61,27 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let isLoginMode = true;
-
-        function toggleModal(show) {
-            document.getElementById('infoModal').style.display = show ? 'flex' : 'none';
+        function showMsg(txt) {
+            document.getElementById('msgText').innerText = txt;
+            document.getElementById('msgModal').style.display = 'flex';
         }
 
+        let isLoginMode = true;
         function toggleForm() {
             isLoginMode = !isLoginMode;
-            const formTitle = document.getElementById("formTitle");
-            const mainBtn = document.getElementById("mainBtn");
-            const toggleBtn = document.getElementById("toggleBtn");
-
-            if (isLoginMode) {
-                formTitle.innerText = "تسجيل الدخول";
-                mainBtn.innerText = "دخول";
-                mainBtn.setAttribute("onclick", "login()");
-                toggleBtn.innerText = "ليس لديك حساب؟ إنشاء حساب جديد ✨";
-            } else {
-                formTitle.innerText = "إنشاء حساب جديد";
-                mainBtn.innerText = "تسجيل الحساب الآن 🚀";
-                mainBtn.setAttribute("onclick", "register()");
-                toggleBtn.innerText = "لديك حساب بالفعل؟ تسجيل الدخول";
-            }
+            document.getElementById("formTitle").innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب جديد";
+            document.getElementById("mainBtn").innerText = isLoginMode ? "دخول" : "تسجيل الحساب الآن 🚀";
+            document.getElementById("mainBtn").setAttribute("onclick", isLoginMode ? "login()" : "register()");
+            document.getElementById("toggleBtn").innerText = isLoginMode ? "ليس لديك حساب؟ إنشاء حساب جديد ✨" : "لديك حساب بالفعل؟ تسجيل الدخول";
         }
 
         function login() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
-            
-            if(user === "" || pass === "") { alert("برجاء إدخال البيانات كاملة"); return; }
+            if(!user || !pass) { showMsg("برجاء إدخال البيانات كاملة"); return; }
             
             if(user === "Zero" && pass === "15935700") {
                 sessionStorage.setItem("loggedInUser", "Zero");
-                alert("أهلاً بك يا أدمن Zero! يتم توجيهك للوحة التحكم...");
                 window.location.href = "admin.html";
                 return;
             }
@@ -122,33 +89,25 @@
             db.collection("users").doc(user).get().then((doc) => {
                 if (doc.exists && doc.data().password === pass) {
                     sessionStorage.setItem("loggedInUser", user);
-                    alert("تم تسجيل دخولك كلاعب! جاري الانتقال للموقع...");
                     window.location.href = "main.html";
                 } else {
-                    alert("اسم المستخدم أو كلمة السر غير صحيحة، أو الحساب غير موجود!");
+                    showMsg("اسم المستخدم أو كلمة السر غير صحيحة!");
                 }
-            }).catch((error) => {
-                alert("حدث خطأ في الاتصال بالسيرفر!");
             });
         }
 
         function register() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
-
-            if(user === "" || pass === "") { alert("برجاء كتابة اسم مستخدم وباسورد!"); return; }
-            if(user === "Zero") { alert("عذراً، هذا الاسم محجوز للأدمن فقط!"); return; }
+            if(!user || !pass) { showMsg("برجاء كتابة اسم مستخدم وباسورد!"); return; }
+            if(user === "Zero") { showMsg("عذراً، هذا الاسم محجوز!"); return; }
 
             db.collection("users").doc(user).get().then((doc) => {
                 if (doc.exists) {
-                    alert("اسم المستخدم هذا مأخوذ من قبل لاعب آخر، اختر اسماً جديداً!");
+                    showMsg("اسم المستخدم هذا مأخوذ من قبل!");
                 } else {
-                    db.collection("users").doc(user).set({
-                        username: user,
-                        password: pass,
-                        points: 0
-                    }).then(() => {
-                        alert("مبروك! تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول.");
+                    db.collection("users").doc(user).set({ username: user, password: pass, points: 0 }).then(() => {
+                        showMsg("تم إنشاء حسابك بنجاح!");
                         toggleForm();
                     });
                 }
