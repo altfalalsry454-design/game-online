@@ -1,31 +1,37 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const path = require('path');
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// --- تعديل هام: ضع رابط قاعدة بياناتك هنا مكان الرابط الطويل ---
-const MONGO_URI = 'mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/myGameDB?retryWrites=true&w=majority';
+// الرابط الخاص بقاعدة البيانات (يفضل وضعه في Railway كـ Variable)
+const MONGO_URI = process.env.MONGO_URI || 'ضع_رابطك_هنا_في_الـ_Variables';
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log('تم الاتصال بقاعدة البيانات بنجاح!'))
-    .catch(err => console.error('فشل الاتصال بقاعدة البيانات:', err));
+    .catch(err => console.error('فشل الاتصال:', err));
 
-// تعريف شكل البيانات (Schema)
-const PlayerSchema = new mongoose.Schema({
+// تعريف شكل البيانات
+const scoreSchema = new mongoose.Schema({
     username: String,
     score: Number
 });
-const Player = mongoose.model('Player', PlayerSchema);
+const Score = mongoose.model('Score', scoreSchema);
 
-// مسار لحفظ النتيجة
+// مسار حفظ النتيجة
 app.post('/save-score', async (req, res) => {
-    const { username, score } = req.body;
-    const newPlayer = new Player({ username, score });
-    await newPlayer.save();
-    res.json({ message: 'تم حفظ النتيجة!' });
+    try {
+        const { username, score } = req.body;
+        const newScore = new Score({ username, score });
+        await newScore.save();
+        res.status(201).send({ message: 'تم حفظ النتيجة بنجاح!' });
+    } catch (error) {
+        res.status(500).send({ message: 'خطأ في حفظ البيانات' });
+    }
 });
 
 const PORT = process.env.PORT || 3000;
