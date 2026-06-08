@@ -5,36 +5,34 @@ const path = require('path');
 
 const app = express();
 app.use(cors());
-app.use(express.json()); // مهم جداً لاستقبال البيانات
+app.use(express.json());
 
-// تم تعديل المسار هنا ليصبح صحيحاً (public مباشرة)
+// التعديل هنا: شلنا الـ ../ عشان السيرفر يلاقي فولدر public بتاعك
 app.use(express.static(path.join(__dirname, 'public')));
 
-// الربط بقاعدة البيانات
+// الربط بقاعدة البيانات (لا تضع الرابط هنا، تأكد أنه موجود في Railway Variables)
 const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI)
-  .then(() => console.log("✅ متصل بقاعدة البيانات"))
-  .catch(err => console.error("❌ خطأ في الاتصال:", err));
+  .then(() => console.log("🔥 متصل بنجاح بقاعدة بيانات MongoDB أونلاين!"))
+  .catch(err => console.error("❌ فشل الاتصال بقاعدة البيانات:", err));
 
-// تعريف الجداول
+// تعريف الـ Models (لا تغير هذه الأسطر)
 const Player = mongoose.model('Player', new mongoose.Schema({
-    name: { type: String, required: true },
+    name: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     points: { type: Number, default: 0 }
 }));
 
-// API للتسجيل (تأكد أن الفرونت إيند يرسل البيانات لهذا المسار)
-app.post('/api/register', async (req, res) => {
-    try {
-        const newPlayer = new Player(req.body);
-        await newPlayer.save();
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+const System = mongoose.model('System', new mongoose.Schema({
+    key: { type: String, default: "main_system" },
+    currentStory: String,
+    hint: String,
+    contactText: String,
+    contactUrl: String
+}));
 
+// إجبار السيرفر على توجيه أي طلب للـ index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
