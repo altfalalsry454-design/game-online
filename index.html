@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقع الألغاز والقصص - الدخول والتسجيل</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #121212; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        .login-container { background-color: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; position: relative; }
+        h2 { margin-bottom: 20px; color: #00adb5; }
+        .input-group { margin-bottom: 15px; text-align: right; }
+        label { display: block; margin-bottom: 5px; color: #aaaaaa; font-size: 14px; }
+        input { width: 100%; padding: 12px; border: 1px solid #333; border-radius: 6px; background-color: #252525; color: #fff; font-size: 16px; text-align: center; }
+        input:focus { border-color: #00adb5; outline: none; }
+        .btn-login { width: 100%; padding: 12px; background-color: #00adb5; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
+        .btn-login:hover { background-color: #008c9e; }
+        .btn-register { width: 100%; padding: 10px; background-color: #252525; color: #ffc107; border: 1px solid #ffc107; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-register:hover { background-color: #ffc107; color: #121212; }
+        
+        .info-wrapper { position: absolute; top: 15px; left: 15px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .info-icon { background-color: #333; color: #00adb5; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .info-icon:hover { background-color: #00adb5; color: #fff; }
+        .info-text { font-size: 11px; color: #888; white-space: nowrap; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+        .modal-content { background-color: #1e1e1e; padding: 30px; border-radius: 12px; max-width: 500px; width: 100%; text-align: right; border: 1px solid #00adb5; position: relative; }
+        .modal-content h3 { color: #00adb5; margin-bottom: 15px; text-align: center; }
+        .modal-content p { color: #dddddd; font-size: 15px; line-height: 1.6; margin-bottom: 10px; }
+        .close-modal { background-color: #ff4444; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 15px; display: block; width: 100%; font-weight: bold; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="info-wrapper">
+            <div class="info-icon" onclick="toggleModal(true)">؟</div>
+            <span class="info-text">اضغط هنا لفهم فكرة الموقع</span>
+        </div>
+        
+        <h2 style="margin-top: 55px;" id="formTitle">تسجيل الدخول</h2>
+        
+        <div class="input-group">
+            <label>اسم المستخدم</label>
+            <input type="text" id="username" placeholder="ادخل اسم حسابك">
+        </div>
+        <div class="input-group">
+            <label>كلمة السر</label>
+            <input type="password" id="password" placeholder="••••••••">
+        </div>
+        
+        <button class="btn-login" id="mainBtn" onclick="login()">دخول</button>
+        <button class="btn-register" id="toggleBtn" onclick="toggleForm()">ليس لديك حساب؟ إنشاء حساب جديد ✨</button>
+    </div>
+
+    <div class="modal" id="infoModal">
+        <div class="modal-content">
+            <h3>فكرة الموقع وشرح اللعبة</h3>
+            <p><strong>أهلاً بك يا بطل! إليك طريقة عمل الموقع بالتفصيل:</strong></p>
+            <p>1. الموقع يعرض قصة غامضة في المنتصف وبها لغز سري.</p>
+            <p>2. عليك قراءة القصة بذكاء واستنتاج كلمة السر الصحيحة وحلها من خلال المربع المخصص.</p>
+            <p>3. يوجد تلميح بجانب مربع الإجابة يضعه الأدمن لمساعدتك.</p>
+            <p>4. <strong>قانون الفوز:</strong> أول شخص يكتب كلمة السر الصحيحة يظهر له (مبروك أنت عبقرى) ويحصل على فرصة لكتابة قصته الخاصة ولغزه الجديد ليراها الأدمن ويقرر نشرها باسمك!</p>
+            <p>5. إذا قمت بكتابة الحل الصحيح ولكن قام شخص آخر بسبقك، سيظهر لك الموقع (كان غيرك أشطر واحد سبقاق).</p>
+            <p>6. يتم تجديد القصص كل 24 ساعة، وهناك لوحة (أبطال القصة) تعرض أعلى 100 لاعب جمعوا نقاطاً.</p>
+            <button class="close-modal" onclick="toggleModal(false)">إغلاق وفهمت الفكرة</button>
+        </div>
+    </div>
+
+    <script>
+        // === كود الـ Config الحقيقي بتاع أحمد ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCYnbAcV0HtrSyRUorBQmXQuBJO7m1C4A",
+            authDomain: "zerobaba-7733e.firebaseapp.com",
+            projectId: "zerobaba-7733e",
+            storageBucket: "zerobaba-7733e.firebasestorage.app",
+            messagingSenderId: "20311065718",
+            appId: "1:20311065718:web:5e50f0ad492d57f2518b57"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let isLoginMode = true;
+
+        function toggleModal(show) {
+            document.getElementById('infoModal').style.display = show ? 'flex' : 'none';
+        }
+
+        // التبديل بين شاشة الدخول وشاشة التسجيل الجديد
+        function toggleForm() {
+            isLoginMode = !isLoginMode;
+            const formTitle = document.getElementById("formTitle");
+            const mainBtn = document.getElementById("mainBtn");
+            const toggleBtn = document.getElementById("toggleBtn");
+
+            if (isLoginMode) {
+                formTitle.innerText = "تسجيل الدخول";
+                mainBtn.innerText = "دخول";
+                mainBtn.setAttribute("onclick", "login()");
+                toggleBtn.innerText = "ليس لديك حساب؟ إنشاء حساب جديد ✨";
+            } else {
+                formTitle.innerText = "إنشاء حساب جديد";
+                mainBtn.innerText = "تسجيل الحساب الآن 🚀";
+                mainBtn.setAttribute("onclick", "register()");
+                toggleBtn.innerText = "لديك حساب بالفعل؟ تسجيل الدخول";
+            }
+        }
+
+        // دالة تسجيل الدخول
+        function login() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+            
+            if(user === "" || pass === "") { alert("برجاء إدخال البيانات كاملة"); return; }
+            
+            if(user === "Zero" && pass === "15935700") {
+                localStorage.setItem("loggedInUser", "Zero");
+                alert("أهلاً بك يا أدمن Zero! يتم توجيهك للوحة التحكم...");
+                window.location.href = "admin.html";
+                return;
+            }
+
+            // التأكد من الحساب من الـ Firebase أونلاين
+            db.collection("users").doc(user).get().then((doc) => {
+                if (doc.exists && doc.data().password === pass) {
+                    localStorage.setItem("loggedInUser", user);
+                    alert("تم تسجيل دخولك كلاعب! جاري الانتقال للموقع...");
+                    window.location.href = "main.html";
+                } else {
+                    alert("اسم المستخدم أو كلمة السر غير صحيحة، أو الحساب غير موجود!");
+                }
+            }).catch((error) => {
+                alert("حدث خطأ في الاتصال بالسيرفر!");
+            });
+        }
+
+        // دالة إنشاء حساب جديد وحفظه في Firebase
+        function register() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+
+            if(user === "" || pass === "") { alert("برجاء كتابة اسم مستخدم وباسورد!"); return; }
+            if(user === "Zero") { alert("عذراً، هذا الاسم محجوز للأدمن فقط!"); return; }
+
+            // التأكد إن الاسم مش متكرر أونلاين
+            db.collection("users").doc(user).get().then((doc) => {
+                if (doc.exists) {
+                    alert("اسم المستخدم هذا مأخوذ من قبل لاعب آخر، اختر اسماً جديداً!");
+                } else {
+                    // حفظ الحساب الجديد بنقاط صفر
+                    db.collection("users").doc(user).set({
+                        username: user,
+                        password: pass,
+                        points: 0
+                    }).then(() => {
+                        alert("مبروك! تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول.");
+                        toggleForm(); // الرجوع لصفحة الدخول
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
