@@ -19,12 +19,12 @@
         .btn-register:hover { background-color: #ffc107; color: #121212; }
         
         /* إضافة تصميم زر شرح اللعبة */
-        .help-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: 20px; cursor: pointer; }
-        .help-icon { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #00adb5; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #00adb5; transition: 0.3s; }
-        .help-icon:hover { background: #00adb5; color: white; }
-        .help-label { margin-top: 5px; font-size: 13px; color: #888; }
+        .help-section { margin-top: 20px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .help-circle { width: 45px; height: 45px; border: 2px solid #00adb5; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #00adb5; transition: 0.3s; }
+        .help-circle:hover { background: #00adb5; color: white; }
+        .help-text { margin-top: 5px; color: #aaa; font-size: 13px; }
         
-        /* تصميم المودال الموحد للرسائل */
+        /* تصميم المودال الموحد للرسائل والشرح */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
         .modal-content { background-color: #1e1e1e; padding: 30px; border-radius: 12px; max-width: 400px; width: 100%; text-align: center; border: 1px solid #00adb5; }
         .close-modal { background-color: #00adb5; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-top: 20px; width: 100%; }
@@ -47,9 +47,9 @@
         <button class="btn-login" id="mainBtn" onclick="login()">دخول</button>
         <button class="btn-register" id="toggleBtn" onclick="toggleForm()">ليس لديك حساب؟ إنشاء حساب جديد ✨</button>
 
-        <div class="help-wrapper" onclick="document.getElementById('helpModal').style.display='flex'">
-            <div class="help-icon">?</div>
-            <div class="help-label">شرح اللعبة</div>
+        <div class="help-section" onclick="document.getElementById('helpModal').style.display='flex'">
+            <div class="help-circle">?</div>
+            <div class="help-text">شرح اللعبة</div>
         </div>
     </div>
 
@@ -63,12 +63,12 @@
     <div class="modal" id="helpModal">
         <div class="modal-content">
             <h2 style="color: #00adb5;">طريقة اللعب 🎮</h2>
-            <p style="text-align: right; color: #ccc; line-height: 1.6; margin-top: 10px;">
+            <p style="font-size: 16px; color: #ccc; text-align: right; line-height: 1.8;">
                 1. سجل دخولك باسمك الخاص.<br>
                 2. اقرأ قصة اليوم وحاول استنتاج كلمة السر.<br>
                 3. اكتب الحل في الخانة المخصصة.<br>
-                4. إذا كنت أول من حل اللغز، ستحصل على نقاط وتصبح من الأبطال.<br>
-                5. يمكنك إضافة لغز جديد إذا ربحت!
+                4. إذا كنت أول من حل اللغز، ستحصل على نقاط.<br>
+                5. الفائز يمكنه إضافة لغز جديد لتحدي الآخرين!
             </p>
             <button class="close-modal" onclick="document.getElementById('helpModal').style.display='none'">إغلاق</button>
         </div>
