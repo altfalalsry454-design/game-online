@@ -67,6 +67,11 @@
         </div>
     </div>
 
+    <footer>
+        <div>تجديد التحدي كل 24 ساعة - شاركنا لغزك المفضل</div>
+        <a href="#" class="contact-link" id="contactLink" target="_blank">تواصل معنا عبر تلجرام أو واتساب</a>
+    </footer>
+
     <div class="modal" id="messageModal">
         <div class="modal-content">
             <p id="messageText" style="text-align: center; font-size: 18px; margin-bottom: 20px;"></p>
@@ -145,42 +150,4 @@
             const userPass = document.getElementById("newStoryPassword").value.trim();
             const userHint = document.getElementById("newStoryHint").value.trim();
             if (!userStory || !userPass || !userHint) { showMessage("برجاء ملء جميع البيانات!"); return; }
-            db.collection("suggestions").add({ author: currentPlayerName, story: userStory, password: userPass, hint: userHint, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => {
-                document.getElementById("winnerModal").style.display = "none";
-                showMessage("تم إرسال قصتك للأدمن بنجاح!");
-            });
-        }
-
-        function updatePlayerPoints(username, points) {
-            const playerRef = db.collection("users").doc(username);
-            playerRef.get().then((doc) => {
-                if (doc.exists) { playerRef.update({ points: firebase.firestore.FieldValue.increment(points) }); }
-                else { playerRef.set({ username: username, points: points }); }
-            });
-        }
-
-        function openLeaderboard() {
-            document.getElementById("leaderboardModal").style.display = "flex";
-            db.collection("users").orderBy("points", "desc").limit(100).get().then((querySnapshot) => {
-                const tbody = document.getElementById("leaderboardRows");
-                tbody.innerHTML = "";
-                let index = 1;
-                querySnapshot.forEach((doc) => {
-                    tbody.innerHTML += `<tr><td>${index++}</td><td>${doc.id}</td><td>${doc.data().points || 0}</td></tr>`;
-                });
-            });
-        }
-        function closeLeaderboard() { document.getElementById("leaderboardModal").style.display = "none"; }
-        function closeLateModal() { document.getElementById("lateModal").style.display = "none"; document.getElementById("playerAnswer").value = ""; }
-        
-        db.collection("game").doc("current_puzzle").onSnapshot((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                document.getElementById("currentStory").innerText = data.story;
-                document.getElementById("currentHint").innerText = "تلميح: " + (data.hint || "لا يوجد");
-                document.getElementById("storyTitleType").innerText = data.title;
-            }
-        });
-    </script>
-</body>
-</html>
+            db.collection("suggestions").add({ author: currentPlayerName, story: userStory
