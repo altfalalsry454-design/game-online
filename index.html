@@ -1,13 +1,143 @@
-<div class="modal" id="helpModal">
-    <div class="modal-content">
-        <h2 style="color: #00adb5; margin-bottom: 15px;">كيف تصبح بطلاً للقصص؟ 🏆</h2>
-        <p style="font-size: 15px; color: #e2e2e9; text-align: right; line-height: 1.8;">
-            <strong style="color: #00adb5;">1. التسجيل والدخول:</strong> اختر اسماً مميزاً وكلمة سر لتسجيل حسابك الخاص.<br>
-            <strong style="color: #00adb5;">2. قصة اليوم:</strong> في كل 24 ساعة، تظهر "قصة غامضة" جديدة. عليك قراءتها بعناية لاستخراج "كلمة السر" المخفية داخل أحداثها.<br>
-            <strong style="color: #00adb5;">3. التحدي الزمني:</strong> كن أسرع من الآخرين! الحل الصحيح الأول يمنحك 10 نقاط كاملة ويُسجل اسمك في لوحة المتصدرين.<br>
-            <strong style="color: #00adb5;">4. دورك في اللعبة:</strong> إذا كنت أنت البطل الذي حل اللغز أولاً، سيُفتح لك نموذج خاص لتقوم أنت بكتابة "قصة ولغز جديد" من تأليفك، ليحاول الآخرون حله!<br>
-            <strong style="color: #00adb5;">5. المنافسة:</strong> تابع قائمة "أبطال القصة" لترى ترتيبك بين اللاعبين.
-        </p>
-        <button class="close-modal" onclick="document.getElementById('helpModal').style.display='none'">فهمت، لنبدأ التحدي! 🚀</button>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقع الألغاز والقصص - الدخول والتسجيل</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #121212; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        .login-container { background-color: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; position: relative; }
+        h2 { margin-bottom: 20px; color: #00adb5; }
+        .input-group { margin-bottom: 15px; text-align: right; }
+        label { display: block; margin-bottom: 5px; color: #aaaaaa; font-size: 14px; }
+        input { width: 100%; padding: 12px; border: 1px solid #333; border-radius: 6px; background-color: #252525; color: #fff; font-size: 16px; text-align: center; }
+        input:focus { border-color: #00adb5; outline: none; }
+        .btn-login { width: 100%; padding: 12px; background-color: #00adb5; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
+        .btn-login:hover { background-color: #008c9e; }
+        .btn-register { width: 100%; padding: 10px; background-color: #252525; color: #ffc107; border: 1px solid #ffc107; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-register:hover { background-color: #ffc107; color: #121212; }
+        
+        /* تصميم زر شرح اللعبة */
+        .help-section { margin-top: 20px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .help-circle { width: 45px; height: 45px; border: 2px solid #00adb5; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #00adb5; transition: 0.3s; }
+        .help-circle:hover { background: #00adb5; color: white; }
+        .help-text { margin-top: 5px; color: #aaa; font-size: 13px; }
+        
+        /* تصميم المودال */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background-color: #1e1e1e; padding: 30px; border-radius: 12px; max-width: 450px; width: 100%; text-align: center; border: 1px solid #00adb5; }
+        .close-modal { background-color: #00adb5; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-top: 20px; width: 100%; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2 style="margin-top: 20px;" id="formTitle">تسجيل الدخول</h2>
+        <div class="input-group">
+            <label>اسم المستخدم</label>
+            <input type="text" id="username" placeholder="ادخل اسم حسابك">
+        </div>
+        <div class="input-group">
+            <label>كلمة السر</label>
+            <input type="password" id="password" placeholder="••••••••">
+        </div>
+        <button class="btn-login" id="mainBtn" onclick="login()">دخول</button>
+        <button class="btn-register" id="toggleBtn" onclick="toggleForm()">ليس لديك حساب؟ إنشاء حساب جديد ✨</button>
+
+        <div class="help-section" onclick="document.getElementById('helpModal').style.display='flex'">
+            <div class="help-circle">?</div>
+            <div class="help-text">شرح اللعبة</div>
+        </div>
     </div>
-</div>
+
+    <div class="modal" id="msgModal">
+        <div class="modal-content">
+            <p id="msgText" style="font-size: 18px; margin-bottom: 10px;"></p>
+            <button class="close-modal" onclick="document.getElementById('msgModal').style.display='none'">حسناً</button>
+        </div>
+    </div>
+
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <h2 style="color: #00adb5; margin-bottom: 15px;">كيف تصبح بطلاً للقصص؟ 🏆</h2>
+            <p style="font-size: 15px; color: #e2e2e9; text-align: right; line-height: 1.8;">
+                <strong style="color: #00adb5;">1. التسجيل والدخول:</strong> اختر اسماً مميزاً وكلمة سر لتسجيل حسابك الخاص.<br>
+                <strong style="color: #00adb5;">2. قصة اليوم:</strong> في كل 24 ساعة، تظهر "قصة غامضة" جديدة. عليك قراءتها بعناية لاستخراج "كلمة السر" المخفية داخل أحداثها.<br>
+                <strong style="color: #00adb5;">3. التحدي الزمني:</strong> كن أسرع من الآخرين! الحل الصحيح الأول يمنحك 10 نقاط كاملة ويُسجل اسمك في لوحة المتصدرين.<br>
+                <strong style="color: #00adb5;">4. دورك في اللعبة:</strong> إذا كنت أنت البطل الذي حل اللغز أولاً، سيُفتح لك نموذج خاص لتقوم أنت بكتابة "قصة ولغز جديد" من تأليفك، ليحاول الآخرون حله!<br>
+                <strong style="color: #00adb5;">5. المنافسة:</strong> تابع قائمة "أبطال القصة" لترى ترتيبك بين اللاعبين.
+            </p>
+            <button class="close-modal" onclick="document.getElementById('helpModal').style.display='none'">فهمت، لنبدأ التحدي! 🚀</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCYnbAcV0HtrSyRUorBQmXQuBJO7m1C4A",
+            authDomain: "zerobaba-7733e.firebaseapp.com",
+            projectId: "zerobaba-7733e",
+            storageBucket: "zerobaba-7733e.firebasestorage.app",
+            messagingSenderId: "20311065718",
+            appId: "1:20311065718:web:5e50f0ad492d57f2518b57"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function showMsg(txt) {
+            document.getElementById('msgText').innerText = txt;
+            document.getElementById('msgModal').style.display = 'flex';
+        }
+
+        let isLoginMode = true;
+        function toggleForm() {
+            isLoginMode = !isLoginMode;
+            document.getElementById("formTitle").innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب جديد";
+            document.getElementById("mainBtn").innerText = isLoginMode ? "دخول" : "تسجيل الحساب الآن 🚀";
+            document.getElementById("mainBtn").setAttribute("onclick", isLoginMode ? "login()" : "register()");
+            document.getElementById("toggleBtn").innerText = isLoginMode ? "ليس لديك حساب؟ إنشاء حساب جديد ✨" : "لديك حساب بالفعل؟ تسجيل الدخول";
+        }
+
+        function login() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+            if(!user || !pass) { showMsg("برجاء إدخال البيانات كاملة"); return; }
+            
+            if(user === "Zero" && pass === "15935700") {
+                sessionStorage.setItem("loggedInUser", "Zero");
+                window.location.href = "admin.html";
+                return;
+            }
+
+            db.collection("users").doc(user).get().then((doc) => {
+                if (doc.exists && doc.data().password === pass) {
+                    sessionStorage.setItem("loggedInUser", user);
+                    window.location.href = "main.html";
+                } else {
+                    showMsg("اسم المستخدم أو كلمة السر غير صحيحة!");
+                }
+            });
+        }
+
+        function register() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+            if(!user || !pass) { showMsg("برجاء كتابة اسم مستخدم وباسورد!"); return; }
+            if(user === "Zero") { showMsg("عذراً، هذا الاسم محجوز!"); return; }
+
+            db.collection("users").doc(user).get().then((doc) => {
+                if (doc.exists) {
+                    showMsg("اسم المستخدم هذا مأخوذ من قبل!");
+                } else {
+                    db.collection("users").doc(user).set({ username: user, password: pass, points: 0 }).then(() => {
+                        showMsg("تم إنشاء حسابك بنجاح!");
+                        toggleForm();
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
