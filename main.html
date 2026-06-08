@@ -28,8 +28,6 @@
         footer { padding: 20px; text-align: center; margin-top: 40px; color: #72727a; font-size: 14px; background: #16161a; border-radius: 12px; border: 1px solid #222227; }
         .contact-link { color: #00adb5; text-decoration: none; margin-top: 5px; display: inline-block; font-weight: 600; transition: color 0.2s; }
         .contact-link:hover { color: #00ffff; }
-        
-        /* تصميم المودال الاحترافي */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
         .modal-content { background-color: #16161a; padding: 30px; border-radius: 16px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid #0052cc; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
         .modal-winner { border-color: #00adb5; }
@@ -37,10 +35,8 @@
         .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .leaderboard-table th, .leaderboard-table td { padding: 12px; text-align: center; border-bottom: 1px solid #222227; }
         .leaderboard-table th { background-color: #0052cc; color: white; font-weight: bold; border-radius: 4px; }
-        
         .form-group { margin-bottom: 15px; text-align: right; }
         .form-group label { display: block; margin-bottom: 8px; color: #00adb5; font-weight: 600; font-size: 15px; }
-        
         .close-btn { background-color: #ff4444; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 20px; transition: background 0.2s; }
         .close-btn:hover { background-color: #cc3333; }
         .success-title { color: #ffc107; text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px; }
@@ -68,6 +64,13 @@
         </div>
     </div>
 
+    <div class="modal" id="messageModal">
+        <div class="modal-content">
+            <p id="messageText" style="text-align: center; font-size: 18px; margin-bottom: 20px;"></p>
+            <button class="close-btn" style="background-color: #00adb5;" onclick="document.getElementById('messageModal').style.display='none'">حسناً</button>
+        </div>
+    </div>
+
     <div class="modal" id="leaderboardModal">
         <div class="modal-content">
             <h3 style="text-align: center; color: #ffc107; margin-bottom: 15px; font-size: 22px;">🏆 أبطال القصة - أفضل 100 لاعب</h3>
@@ -83,22 +86,9 @@
         <div class="modal-content modal-winner">
             <div class="success-title">🥳 مبروك انت عبقرى!</div>
             <div class="success-subtitle">لقد كنت أول من يكتشف الحل الصحيح، حان دورك الآن في كتابة قصة وكلمة سر لتحدي اللاعبين!</div>
-            
-            <div class="form-group">
-                <label>نص قصتك الجديدة واللغز:</label>
-                <textarea id="newStoryBody" placeholder="اكتب هنا تفاصيل قصة لغزك الجديد بذكاء..."></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label>كلمة السر للحل:</label>
-                <input type="text" id="newStoryPassword" placeholder="اكتب كلمة السر المستهدفة لقصتك" style="text-align: right;">
-            </div>
-
-            <div class="form-group">
-                <label>تلميح مساعد:</label>
-                <input type="text" id="newStoryHint" placeholder="اكتب تلميحاً صغيراً يساعد اللاعبين على الحل" style="text-align: right;">
-            </div>
-            
+            <div class="form-group"><label>نص قصتك الجديدة واللغز:</label><textarea id="newStoryBody" placeholder="اكتب هنا تفاصيل قصة لغزك الجديد بذكاء..."></textarea></div>
+            <div class="form-group"><label>كلمة السر للحل:</label><input type="text" id="newStoryPassword" placeholder="اكتب كلمة السر المستهدفة لقصتك"></div>
+            <div class="form-group"><label>تلميح مساعد:</label><input type="text" id="newStoryHint" placeholder="اكتب تلميحاً صغيراً"></div>
             <button class="btn-submit" style="width: 100%; margin-top: 10px;" onclick="submitNewStory()">إرسال القصة للأدمن ونشرها 🚀</button>
         </div>
     </div>
@@ -106,18 +96,10 @@
     <div class="modal" id="lateModal">
         <div class="modal-content modal-late">
             <div class="success-title" style="color: #ff4444;">😢 للأسف كان غيرك أشطر!</div>
-            <div class="success-subtitle" style="font-size: 18px; line-height: 1.6; margin-top: 15px;">
-                إجابتك صحيحة وعبقرية، ولكن هناك لاعب آخر قام بحل اللغز وإرساله قبلك وسبقك في الفوز بالنقاط وكتابة القصة!
-            </div>
-            <p style="text-align: center; color: #aaa; margin-top: 10px; font-size: 14px;">انتظر القصة القادمة لتكون أنت الأسرع 🌟</p>
-            <button class="close-btn" onclick="closeLateModal()">إغلاق والمحاولة في القصة القادمة</button>
+            <div class="success-subtitle" style="font-size: 18px; line-height: 1.6; margin-top: 15px;">إجابتك صحيحة، ولكن هناك لاعب آخر سبقك في الحل!</div>
+            <button class="close-btn" onclick="closeLateModal()">إغلاق</button>
         </div>
     </div>
-
-    <footer>
-        <p>كل ٢٤ ساعه قصه جديد</p>
-        <div id="adminContactArea"><a href="#" class="contact-link" id="contactLink" target="_blank">للتواصل مع الإدارة</a></div>
-    </footer>
 
     <script>
         const firebaseConfig = {
@@ -132,69 +114,37 @@
         const db = firebase.firestore();
 
         let currentPlayerName = sessionStorage.getItem("loggedInUser");
-        if (!currentPlayerName) {
-            window.location.href = "index.html";
-        }
+        if (!currentPlayerName) window.location.href = "index.html";
 
-        let correctPassword = "";
-        let isSolved = false;
-
-        function loadGameData() {
-            db.collection("game").doc("current_puzzle").onSnapshot((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    document.getElementById("currentStory").innerText = data.story || "لا توجد قصة حالياً.";
-                    document.getElementById("currentHint").innerText = "تلميح: " + (data.hint || "لا يوجد");
-                    document.getElementById("storyTitleType").innerText = data.title || "عنوان قصة اليوم";
-                    document.getElementById("todayStoryAuthor").innerText = data.author ? "قصة اليوم من: " + data.author : "قصة اليوم من النظام";
-                    correctPassword = data.password || "";
-                    isSolved = data.isSolved || false;
-                }
-            });
-            db.collection("game").doc("settings").onSnapshot((doc) => {
-                if (doc.exists) document.getElementById("contactLink").href = doc.data().contactUrl || "#";
-            });
+        function showMessage(text) {
+            document.getElementById("messageText").innerText = text;
+            document.getElementById("messageModal").style.display = "flex";
         }
 
         function checkAnswer() {
             const playerInput = document.getElementById("playerAnswer").value.trim();
-            if (playerInput === "") { alert("اكتب كلمة سر أولاً!"); return; }
-            if (playerInput === correctPassword) {
-                db.collection("game").doc("current_puzzle").get().then((doc) => {
-                    const data = doc.data();
+            if (playerInput === "") { showMessage("اكتب كلمة سر أولاً!"); return; }
+            db.collection("game").doc("current_puzzle").get().then((doc) => {
+                const data = doc.data();
+                if (playerInput === data.password) {
                     if (!data.isSolved) {
                         db.collection("game").doc("current_puzzle").update({ isSolved: true, winner: currentPlayerName }).then(() => {
                             updatePlayerPoints(currentPlayerName, 10);
                             document.getElementById("winnerModal").style.display = "flex";
                         });
-                    } else { 
-                        // تم التعديل هنا: فتح نافذة "كان غيرك أشطر" الاحترافية بدل الأليرت القديم
-                        document.getElementById("lateModal").style.display = "flex";
-                    }
-                });
-            } else { alert("كلمة السر خاطئة! حاول مجدداً وركز في اللغز."); }
+                    } else { document.getElementById("lateModal").style.display = "flex"; }
+                } else { showMessage("كلمة السر خاطئة! حاول مجدداً."); }
+            });
         }
 
         function submitNewStory() {
             const userStory = document.getElementById("newStoryBody").value.trim();
             const userPass = document.getElementById("newStoryPassword").value.trim();
             const userHint = document.getElementById("newStoryHint").value.trim();
-            
-            if (!userStory || !userPass || !userHint) {
-                alert("برجاء ملء جميع المربعات (القصة، كلمة السر، والتلميح) قبل الإرسال!");
-                return;
-            }
-            
-            db.collection("suggestions").add({
-                author: currentPlayerName,
-                story: userStory,
-                password: userPass,
-                hint: userHint,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
+            if (!userStory || !userPass || !userHint) { showMessage("برجاء ملء جميع البيانات!"); return; }
+            db.collection("suggestions").add({ author: currentPlayerName, story: userStory, password: userPass, hint: userHint, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => {
                 document.getElementById("winnerModal").style.display = "none";
-                alert("تم إرسال قصتك ولغزك للأدمن بنجاح وفي انتظار مراجعتها ونشرها على الموقع! شكراً لك يا عبقري.");
-                document.getElementById("playerAnswer").value = "";
+                showMessage("تم إرسال قصتك للأدمن بنجاح!");
             });
         }
 
@@ -218,11 +168,16 @@
             });
         }
         function closeLeaderboard() { document.getElementById("leaderboardModal").style.display = "none"; }
-        function closeLateModal() { 
-            document.getElementById("lateModal").style.display = "none"; 
-            document.getElementById("playerAnswer").value = "";
-        }
-        window.onload = loadGameData;
+        function closeLateModal() { document.getElementById("lateModal").style.display = "none"; document.getElementById("playerAnswer").value = ""; }
+        
+        db.collection("game").doc("current_puzzle").onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                document.getElementById("currentStory").innerText = data.story;
+                document.getElementById("currentHint").innerText = "تلميح: " + (data.hint || "لا يوجد");
+                document.getElementById("storyTitleType").innerText = data.title;
+            }
+        });
     </script>
 </body>
 </html>
