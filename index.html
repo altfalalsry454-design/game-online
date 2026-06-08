@@ -70,7 +70,6 @@
     </div>
 
     <script>
-        // === كود الـ Config الحقيقي بتاع أحمد ===
         const firebaseConfig = {
             apiKey: "AIzaSyDCYnbAcV0HtrSyRUorBQmXQuBJO7m1C4A",
             authDomain: "zerobaba-7733e.firebaseapp.com",
@@ -88,7 +87,6 @@
             document.getElementById('infoModal').style.display = show ? 'flex' : 'none';
         }
 
-        // التبديل بين شاشة الدخول وشاشة التسجيل الجديد
         function toggleForm() {
             isLoginMode = !isLoginMode;
             const formTitle = document.getElementById("formTitle");
@@ -108,7 +106,6 @@
             }
         }
 
-        // دالة تسجيل الدخول
         function login() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
@@ -116,16 +113,15 @@
             if(user === "" || pass === "") { alert("برجاء إدخال البيانات كاملة"); return; }
             
             if(user === "Zero" && pass === "15935700") {
-                localStorage.setItem("loggedInUser", "Zero");
+                sessionStorage.setItem("loggedInUser", "Zero");
                 alert("أهلاً بك يا أدمن Zero! يتم توجيهك للوحة التحكم...");
                 window.location.href = "admin.html";
                 return;
             }
 
-            // التأكد من الحساب من الـ Firebase أونلاين
             db.collection("users").doc(user).get().then((doc) => {
                 if (doc.exists && doc.data().password === pass) {
-                    localStorage.setItem("loggedInUser", user);
+                    sessionStorage.setItem("loggedInUser", user);
                     alert("تم تسجيل دخولك كلاعب! جاري الانتقال للموقع...");
                     window.location.href = "main.html";
                 } else {
@@ -136,7 +132,6 @@
             });
         }
 
-        // دالة إنشاء حساب جديد وحفظه في Firebase
         function register() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
@@ -144,19 +139,17 @@
             if(user === "" || pass === "") { alert("برجاء كتابة اسم مستخدم وباسورد!"); return; }
             if(user === "Zero") { alert("عذراً، هذا الاسم محجوز للأدمن فقط!"); return; }
 
-            // التأكد إن الاسم مش متكرر أونلاين
             db.collection("users").doc(user).get().then((doc) => {
                 if (doc.exists) {
                     alert("اسم المستخدم هذا مأخوذ من قبل لاعب آخر، اختر اسماً جديداً!");
                 } else {
-                    // حفظ الحساب الجديد بنقاط صفر
                     db.collection("users").doc(user).set({
                         username: user,
                         password: pass,
                         points: 0
                     }).then(() => {
                         alert("مبروك! تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول.");
-                        toggleForm(); // الرجوع لصفحة الدخول
+                        toggleForm();
                     });
                 }
             });
