@@ -1,17 +1,16 @@
 {
-  "name": "quiz-game-server",
+  "name": "my-game-project",
   "version": "1.0.0",
-  "description": "Online Quiz Game with MongoDB",
+  "description": "سيرفر للعبة الخاصة بي",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "mongoose": "^8.3.2",
-    "cors": "^2.8.5"
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=16.0.0"
   }
 }
