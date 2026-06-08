@@ -85,10 +85,9 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // حماية أمنية وتأكيد تسجيل الخروج التلقائي
+        // حماية أمنية: توجيه تلقائي صامت لصفحة الدخول في حال عدم التسجيل بدون رسائل منبثقة
         let currentPlayerName = sessionStorage.getItem("loggedInUser");
         if (!currentPlayerName) {
-            alert("برجاء تسجيل الدخول أولاً!");
             window.location.href = "index.html";
         }
 
