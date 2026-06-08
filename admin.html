@@ -21,9 +21,10 @@
         .btn-danger { background-color: #ff4444; }
         .btn-danger:hover { background-color: #cc0000; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 10px; text-align: center; border-bottom: 1px solid #333; }
+        th, td { padding: 10px; text-align: center; border-bottom: 1px solid #333; font-size: 14px; }
         th { background-color: #252525; color: #00adb5; }
         .suggestion-item { background-color: #252525; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-right: 4px solid #ffc107; }
+        .table-input { width: 100%; max-width: 80px; text-align: center; background: #252525; color: #fff; border: 1px solid #333; border-radius: 4px; padding: 4px; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -47,10 +48,17 @@
                 <button class="btn" onclick="updateContact()">حفظ الرابط</button>
             </div>
             <div class="card">
-                <h3>👥 إدارة الحسابات والنقاط</h3>
-                <div style="max-height: 250px; overflow-y: auto;">
+                <h3>👥 إدارة الحسابات، النقاط، وكلمات المرور</h3>
+                <div style="max-height: 350px; overflow-y: auto;">
                     <table>
-                        <thead><tr><th>اللاعب</th><th>النقاط</th><th>تعديل/حذف</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>اللاعب</th>
+                                <th>النقاط</th>
+                                <th>باسورد</th>
+                                <th>تحكم</th>
+                            </tr>
+                        </thead>
                         <tbody id="adminUsersRows"></tbody>
                     </table>
                 </div>
@@ -94,21 +102,26 @@
             db.collection("game").doc("settings").get().then((doc) => {
                 if (doc.exists) document.getElementById("contactUrl").value = doc.data().contactUrl || "";
             });
+            
+            // جلب الحسابات وعرض الباسورد والنقاط
             db.collection("users").orderBy("points", "desc").onSnapshot((querySnapshot) => {
                 const tbody = document.getElementById("adminUsersRows"); tbody.innerHTML = "";
                 querySnapshot.forEach((doc) => {
                     if(doc.id !== "Zero") {
+                        const userData = doc.data();
                         tbody.innerHTML += `<tr>
-                            <td>${doc.id}</td>
-                            <td><input type="number" value="${doc.data().points || 0}" style="width:60px; text-align:center; background:#252525; color:#fff; border:1px solid #333;" id="points_${doc.id}"></td>
+                            <td style="color:#ffc107; font-weight:bold;">${doc.id}</td>
+                            <td><input type="number" value="${userData.points || 0}" class="table-input" id="points_${doc.id}"></td>
+                            <td><input type="text" value="${userData.password || ''}" class="table-input" style="max-width:100px;" id="pass_${doc.id}"></td>
                             <td>
-                                <button class="btn" style="padding:4px 8px; width:auto; font-size:12px;" onclick="editPoints('${doc.id}')">تحديث</button>
+                                <button class="btn" style="padding:4px 8px; width:auto; font-size:12px; margin-bottom:2px;" onclick="updateUserData('${doc.id}')">حفظ</button>
                                 <button class="btn btn-danger" style="padding:4px 8px; width:auto; font-size:12px;" onclick="deleteUser('${doc.id}')">حذف</button>
                             </td>
                         </tr>`;
                     }
                 });
             });
+            
             db.collection("suggestions").orderBy("timestamp", "desc").onSnapshot((querySnapshot) => {
                 const container = document.getElementById("suggestionsContainer"); container.innerHTML = "";
                 if (querySnapshot.empty) { container.innerHTML = '<p style="color: #888;">لا توجد اقتراحات جديدة حالياً.</p>'; return; }
@@ -140,11 +153,22 @@
         function updateContact() {
             db.collection("game").doc("settings").set({ contactUrl: document.getElementById("contactUrl").value.trim() }).then(() => { alert("تم تحديث الرابط!"); });
         }
-        function editPoints(username) {
-            db.collection("users").doc(username).update({ points: parseInt(document.getElementById("points_" + username).value) }).then(() => { alert("تم تحديث النقاط!"); });
+        
+        // دالة تحديث النقاط والباسورد معاً
+        function updateUserData(username) {
+            const newPoints = parseInt(document.getElementById("points_" + username).value);
+            const newPass = document.getElementById("pass_" + username).value.trim();
+            
+            if(newPass === "") { alert("لا يمكن ترك كلمة المرور فارغة!"); return; }
+            
+            db.collection("users").doc(username).update({
+                points: newPoints,
+                password: newPass
+            }).then(() => { alert("تم تحديث بيانات اللاعب " + username + " بنجاح!"); });
         }
+        
         function deleteUser(username) {
-            if (confirm("حذف اللاعب؟")) db.collection("users").doc(username).delete();
+            if (confirm("هل أنت متأكد من حذف حساب اللاعب " + username + " تماماً؟")) db.collection("users").doc(username).delete();
         }
         function deleteSuggestion(id) {
             if (confirm("حذف الاقتراح؟")) db.collection("suggestions").doc(id).delete();
