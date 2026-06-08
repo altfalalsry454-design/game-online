@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>أبطال القصص</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
         body { background-color: #0f0f12; color: #fff; padding: 20px; }
         .main-container { max-width: 800px; margin: 0 auto; background: #16161a; padding: 30px; border-radius: 16px; border: 1px solid #222227; }
+        
+        /* تصميم المودال - لا رسائل متصفح بعد الآن */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 9999; }
-        .modal-content { background: #1a1a1f; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; text-align: center; border: 1px solid #00adb5; }
+        .modal-content { background: #1a1a1f; padding: 25px; border-radius: 15px; width: 90%; max-width: 450px; text-align: center; border: 1px solid #00adb5; }
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #222227; border: 1px solid #333; color: white; border-radius: 5px; }
         button { background: #00adb5; border: none; padding: 12px 25px; color: white; cursor: pointer; border-radius: 5px; font-weight: bold; margin-top: 10px; }
     </style>
@@ -17,25 +19,25 @@
 <body>
 
 <div class="main-container">
-    <h2 id="storyTitle">جاري تحميل اللغز...</h2>
+    <h2 id="storyTitle">جاري تحميل القصة...</h2>
     <div id="storyBox" style="margin: 20px 0; min-height: 150px; color: #ff3333; font-weight: bold;"></div>
     <input type="text" id="playerAnswer" placeholder="اكتب كلمة السر هنا">
     <button onclick="checkAnswer()">إرسال الحل</button>
 </div>
 
-<div id="messageModal" class="modal">
+<div id="msgModal" class="modal">
     <div class="modal-content">
-        <p id="modalText"></p>
-        <button onclick="document.getElementById('messageModal').style.display='none'">حسناً</button>
+        <p id="msgText" style="margin-bottom: 15px;"></p>
+        <button onclick="closeModal()">حسناً</button>
     </div>
 </div>
 
 <div id="winModal" class="modal">
     <div class="modal-content">
         <h3>🥳 مبروك! اكتب قصتك الجديدة</h3>
-        <textarea id="newStory" placeholder="اكتب قصتك هنا"></textarea>
-        <input type="text" id="newPassword" placeholder="كلمة السر للقصة">
-        <input type="text" id="newHint" placeholder="تلميح للقصة">
+        <textarea id="newStory" placeholder="نص القصة..."></textarea>
+        <input type="text" id="newPass" placeholder="كلمة السر...">
+        <input type="text" id="newHint" placeholder="تلميح...">
         <button onclick="submitNewStory()">إرسال القصة</button>
     </div>
 </div>
@@ -54,8 +56,14 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // حماية الدخول
+    // فحص الدخول بدون رسالة مزعجة
     if (!sessionStorage.getItem("loggedInUser")) window.location.href = "index.html";
+
+    function showMsg(text) {
+        document.getElementById('msgText').innerText = text;
+        document.getElementById('msgModal').style.display = 'flex';
+    }
+    function closeModal() { document.getElementById('msgModal').style.display = 'none'; }
 
     function checkAnswer() {
         let input = document.getElementById('playerAnswer').value;
@@ -64,25 +72,15 @@
             if (input === data.password && !data.isSolved) {
                 document.getElementById('winModal').style.display = 'flex';
             } else if (data.isSolved) {
-                document.getElementById('modalText').innerText = "للأسف كان غيرك أشطر!";
-                document.getElementById('messageModal').style.display = 'flex';
+                showMsg("للأسف كان غيرك أشطر!");
             } else {
-                document.getElementById('modalText').innerText = "كلمة السر خاطئة!";
-                document.getElementById('messageModal').style.display = 'flex';
+                showMsg("كلمة السر خاطئة!");
             }
         });
     }
 
     function submitNewStory() {
         let s = document.getElementById('newStory').value;
-        let p = document.getElementById('newPassword').value;
+        let p = document.getElementById('newPass').value;
         let h = document.getElementById('newHint').value;
-        db.collection("suggestions").add({author: sessionStorage.getItem("loggedInUser"), story: s, password: p, hint: h}).then(() => {
-            document.getElementById('winModal').style.display = 'none';
-            document.getElementById('modalText').innerText = "تم إرسال قصتك للأدمن!";
-            document.getElementById('messageModal').style.display = 'flex';
-        });
-    }
-</script>
-</body>
-</html>
+        if(!s || !p || !h) return
