@@ -1,41 +1,32 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const path = require('path');
-
 const app = express();
-app.use(cors());
+
 app.use(express.json());
+app.use(express.static('public'));
 
-// التعديل هنا: شلنا الـ ../ عشان السيرفر يلاقي فولدر public بتاعك
-app.use(express.static(path.join(__dirname, 'public')));
-
-// الربط بقاعدة البيانات (لا تضع الرابط هنا، تأكد أنه موجود في Railway Variables)
-const MONGO_URI = process.env.MONGO_URI;
+// --- تعديل هام: ضع رابط قاعدة بياناتك هنا مكان الرابط الطويل ---
+const MONGO_URI = 'mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/myGameDB?retryWrites=true&w=majority';
 
 mongoose.connect(MONGO_URI)
-  .then(() => console.log("🔥 متصل بنجاح بقاعدة بيانات MongoDB أونلاين!"))
-  .catch(err => console.error("❌ فشل الاتصال بقاعدة البيانات:", err));
+    .then(() => console.log('تم الاتصال بقاعدة البيانات بنجاح!'))
+    .catch(err => console.error('فشل الاتصال بقاعدة البيانات:', err));
 
-// تعريف الـ Models (لا تغير هذه الأسطر)
-const Player = mongoose.model('Player', new mongoose.Schema({
-    name: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    points: { type: Number, default: 0 }
-}));
+// تعريف شكل البيانات (Schema)
+const PlayerSchema = new mongoose.Schema({
+    username: String,
+    score: Number
+});
+const Player = mongoose.model('Player', PlayerSchema);
 
-const System = mongoose.model('System', new mongoose.Schema({
-    key: { type: String, default: "main_system" },
-    currentStory: String,
-    hint: String,
-    contactText: String,
-    contactUrl: String
-}));
-
-// إجبار السيرفر على توجيه أي طلب للـ index.html
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// مسار لحفظ النتيجة
+app.post('/save-score', async (req, res) => {
+    const { username, score } = req.body;
+    const newPlayer = new Player({ username, score });
+    await newPlayer.save();
+    res.json({ message: 'تم حفظ النتيجة!' });
 });
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`السيرفر يعمل على البورت ${PORT}`));
