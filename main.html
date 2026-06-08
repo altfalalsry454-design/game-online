@@ -1,183 +1,86 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أبطال القصص</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0f0f12; color: #ffffff; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 15px 25px; background: #16161a; border-radius: 12px; border: 1px solid #222227; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); }
-        .header-title { font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px; }
-        .btn-top-100 { background: linear-gradient(135deg, #0052cc, #003d99); color: white; border: none; padding: 12px 28px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 82, 204, 0.3); }
-        .btn-top-100:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 82, 204, 0.5); }
-        .main-container { max-width: 850px; width: 100%; margin: 0 auto; background-color: #16161a; padding: 30px; border-radius: 16px; border: 1px solid #222227; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .story-header { margin-bottom: 20px; border-right: 4px solid #00adb5; padding-right: 15px; }
-        .story-main-title { font-size: 24px; font-weight: bold; color: #00adb5; margin-bottom: 5px; }
-        .story-author { font-size: 15px; color: #ffc107; font-weight: 600; }
-        .story-box { width: 100%; height: 300px; background-color: #1a1a1f; border: 1px solid #2d2d35; border-radius: 12px; padding: 25px; color: #ff3333; font-size: 22px; font-weight: bold; line-height: 1.8; overflow-y: auto; margin-bottom: 25px; display: flex; justify-content: center; align-items: center; text-align: center; }
-        .answer-section { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-        .input-wrapper, .hint-wrapper { flex: 2; min-width: 250px; }
-        .hint-wrapper { flex: 1; min-width: 180px; }
-        input[type="text"], textarea { width: 100%; padding: 14px; background-color: #1a1a1f; border: 1px solid #2d2d35; border-radius: 8px; color: white; font-size: 16px; text-align: center; transition: all 0.3s ease; }
-        input[type="text"]:focus, textarea:focus { border-color: #00adb5; box-shadow: 0 0 10px rgba(0, 173, 181, 0.3); outline: none; }
-        textarea { resize: none; height: 100px; text-align: right; }
-        .hint-box { background-color: #1a1a1f; border: 1px dashed #ffc107; padding: 14px; border-radius: 8px; text-align: center; color: #e2e2e9; font-size: 15px; font-weight: 500; }
-        .btn-submit { background: linear-gradient(135deg, #00adb5, #008c9e); color: white; border: none; padding: 14px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 173, 181, 0.2); }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 173, 181, 0.4); }
-        footer { padding: 20px; text-align: center; margin-top: 40px; color: #72727a; font-size: 14px; background: #16161a; border-radius: 12px; border: 1px solid #222227; }
-        .contact-link { color: #00adb5; text-decoration: none; margin-top: 5px; display: inline-block; font-weight: 600; transition: color 0.2s; }
-        .contact-link:hover { color: #00ffff; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
-        .modal-content { background-color: #16161a; padding: 30px; border-radius: 16px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid #0052cc; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
-        .modal-winner { border-color: #00adb5; }
-        .modal-late { border-color: #ff4444; }
-        .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .leaderboard-table th, .leaderboard-table td { padding: 12px; text-align: center; border-bottom: 1px solid #222227; }
-        .leaderboard-table th { background-color: #0052cc; color: white; font-weight: bold; border-radius: 4px; }
-        .form-group { margin-bottom: 15px; text-align: right; }
-        .form-group label { display: block; margin-bottom: 8px; color: #00adb5; font-weight: 600; font-size: 15px; }
-        .close-btn { background-color: #ff4444; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 20px; transition: background 0.2s; }
-        .close-btn:hover { background-color: #cc3333; }
-        .success-title { color: #ffc107; text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-        .success-subtitle { text-align: center; color: #e2e2e9; margin-bottom: 20px; font-size: 16px; }
-    </style>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أبطال القصص</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f0f12; color: #ffffff; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 15px 25px; background: #16161a; border-radius: 12px; border: 1px solid #222227; }
+        .header-title { font-size: 26px; font-weight: 800; color: #ffffff; }
+        .btn-top-100 { background: linear-gradient(135deg, #0052cc, #003d99); color: white; border: none; padding: 12px 28px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        
+        .main-container { max-width: 850px; width: 100%; margin: 0 auto; background-color: #16161a; padding: 30px; border-radius: 16px; border: 1px solid #222227; }
+        .story-main-title { font-size: 24px; font-weight: bold; color: #00adb5; margin-bottom: 10px; }
+        .story-box { width: 100%; height: 300px; background-color: #1a1a1f; border: 1px solid #2d2d35; border-radius: 12px; padding: 25px; color: #ff3333; font-size: 20px; font-weight: bold; line-height: 1.8; overflow-y: auto; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; text-align: center; }
+        
+        .answer-section { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .input-wrapper { flex: 2; }
+        input, textarea { width: 100%; padding: 14px; background-color: #1a1a1f; border: 1px solid #2d2d35; border-radius: 8px; color: white; text-align: center; }
+        .btn-submit { background: #00adb5; color: white; border: none; padding: 14px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background-color: #16161a; padding: 30px; border-radius: 16px; max-width: 500px; width: 100%; border: 1px solid #00adb5; text-align: center; }
+        .close-btn { background-color: #ff4444; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 15px; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
-    <header>
-        <div class="header-title">ابطال القصص</div>
-        <button class="btn-top-100" onclick="openLeaderboard()">ابطال القصه</button>
-    </header>
 
-    <div class="main-container">
-        <div class="story-header">
-            <div class="story-main-title" id="storyTitleType">عنوان قصة اليوم</div>
-            <div class="story-author" id="todayStoryAuthor">قصة اليوم من النظام</div>
-        </div>
-        <div class="story-box" id="currentStory">جاري تحميل قصة اليوم من السيرفر...</div>
-        <div class="answer-section">
-            <div class="input-wrapper"><input type="text" id="playerAnswer" placeholder="اكتب كلمة السر المستنتجة هنا"></div>
-            <div class="hint-wrapper"><div class="hint-box" id="currentHint">التلميح: جاري التحميل...</div></div>
-            <button class="btn-submit" onclick="checkAnswer()">إرسال الحل</button>
-        </div>
-    </div>
+    <header>
+        <div class="header-title">أبطال القصص</div>
+        <button class="btn-top-100" onclick="openLeaderboard()">أبطال القصة</button>
+    </header>
 
-    <div class="modal" id="messageModal">
-        <div class="modal-content">
-            <p id="messageText" style="text-align: center; font-size: 18px; margin-bottom: 20px;"></p>
-            <button class="close-btn" style="background-color: #00adb5;" onclick="document.getElementById('messageModal').style.display='none'">حسناً</button>
-        </div>
-    </div>
+    <div class="main-container">
+        <div class="story-main-title" id="storyTitleType">جاري التحميل...</div>
+        <div class="story-box" id="currentStory">جاري تحميل قصة اليوم...</div>
+        <div class="answer-section">
+            <div class="input-wrapper"><input type="text" id="playerAnswer" placeholder="اكتب كلمة السر هنا"></div>
+            <div id="currentHint" style="color: #ffc107; font-size: 14px;">التلميح: ---</div>
+            <button class="btn-submit" onclick="checkAnswer()">إرسال الحل</button>
+        </div>
+    </div>
 
-    <div class="modal" id="leaderboardModal">
-        <div class="modal-content">
-            <h3 style="text-align: center; color: #ffc107; margin-bottom: 15px; font-size: 22px;">🏆 أبطال القصة - أفضل 100 لاعب</h3>
-            <table class="leaderboard-table">
-                <thead><tr><th>الترتيب</th><th>اللاعب</th><th>النقاط</th></tr></thead>
-                <tbody id="leaderboardRows"></tbody>
-            </table>
-            <button class="close-btn" onclick="closeLeaderboard()">إغلاق</button>
-        </div>
-    </div>
+    <div class="modal" id="messageModal"><div class="modal-content"><p id="messageText"></p><button class="close-btn" onclick="document.getElementById('messageModal').style.display='none'">حسناً</button></div></div>
+    <div class="modal" id="leaderboardModal"><div class="modal-content"><h3 style="color:#ffc107">🏆 أفضل اللاعبين</h3><table id="leaderboardRows" style="width:100%; color:white; margin:15px 0;"></table><button class="close-btn" onclick="closeLeaderboard()">إغلاق</button></div></div>
 
-    <div class="modal" id="winnerModal">
-        <div class="modal-content modal-winner">
-            <div class="success-title">🥳 مبروك انت عبقرى!</div>
-            <div class="success-subtitle">لقد كنت أول من يكتشف الحل الصحيح، حان دورك الآن في كتابة قصة وكلمة سر لتحدي اللاعبين!</div>
-            <div class="form-group"><label>نص قصتك الجديدة واللغز:</label><textarea id="newStoryBody" placeholder="اكتب هنا تفاصيل قصة لغزك الجديد بذكاء..."></textarea></div>
-            <div class="form-group"><label>كلمة السر للحل:</label><input type="text" id="newStoryPassword" placeholder="اكتب كلمة السر المستهدفة لقصتك"></div>
-            <div class="form-group"><label>تلميح مساعد:</label><input type="text" id="newStoryHint" placeholder="اكتب تلميحاً صغيراً"></div>
-            <button class="btn-submit" style="width: 100%; margin-top: 10px;" onclick="submitNewStory()">إرسال القصة للأدمن ونشرها 🚀</button>
-        </div>
-    </div>
+    <script>
+        const firebaseConfig = { /* أضف بياناتك هنا */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-    <div class="modal" id="lateModal">
-        <div class="modal-content modal-late">
-            <div class="success-title" style="color: #ff4444;">😢 للأسف كان غيرك أشطر!</div>
-            <div class="success-subtitle" style="font-size: 18px; line-height: 1.6; margin-top: 15px;">إجابتك صحيحة، ولكن هناك لاعب آخر سبقك في الحل!</div>
-            <button class="close-btn" onclick="closeLateModal()">إغلاق</button>
-        </div>
-    </div>
+        let currentPlayerName = sessionStorage.getItem("loggedInUser");
+        if (!currentPlayerName) window.location.href = "index.html";
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDCYnbAcV0HtrSyRUorBQmXQuBJO7m1C4A",
-            authDomain: "zerobaba-7733e.firebaseapp.com",
-            projectId: "zerobaba-7733e",
-            storageBucket: "zerobaba-7733e.firebasestorage.app",
-            messagingSenderId: "20311065718",
-            appId: "1:20311065718:web:5e50f0ad492d57f2518b57"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        // المستمع اللحظي (هو مفتاح الحل ليظهر ما ينشره الأدمن فوراً)
+        db.collection("game").doc("current_puzzle").onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                document.getElementById("storyTitleType").innerText = data.title;
+                document.getElementById("currentStory").innerText = data.story;
+                document.getElementById("currentHint").innerText = "التلميح: " + data.hint;
+            }
+        });
 
-        let currentPlayerName = sessionStorage.getItem("loggedInUser");
-        if (!currentPlayerName) window.location.href = "index.html";
-
-        function showMessage(text) {
-            document.getElementById("messageText").innerText = text;
-            document.getElementById("messageModal").style.display = "flex";
-        }
-
-        function checkAnswer() {
-            const playerInput = document.getElementById("playerAnswer").value.trim();
-            if (playerInput === "") { showMessage("اكتب كلمة سر أولاً!"); return; }
-            db.collection("game").doc("current_puzzle").get().then((doc) => {
-                const data = doc.data();
-                if (playerInput === data.password) {
-                    if (!data.isSolved) {
-                        db.collection("game").doc("current_puzzle").update({ isSolved: true, winner: currentPlayerName }).then(() => {
-                            updatePlayerPoints(currentPlayerName, 10);
-                            document.getElementById("winnerModal").style.display = "flex";
-                        });
-                    } else { document.getElementById("lateModal").style.display = "flex"; }
-                } else { showMessage("كلمة السر خاطئة! حاول مجدداً."); }
-            });
-        }
-
-        function submitNewStory() {
-            const userStory = document.getElementById("newStoryBody").value.trim();
-            const userPass = document.getElementById("newStoryPassword").value.trim();
-            const userHint = document.getElementById("newStoryHint").value.trim();
-            if (!userStory || !userPass || !userHint) { showMessage("برجاء ملء جميع البيانات!"); return; }
-            db.collection("suggestions").add({ author: currentPlayerName, story: userStory, password: userPass, hint: userHint, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => {
-                document.getElementById("winnerModal").style.display = "none";
-                showMessage("تم إرسال قصتك للأدمن بنجاح!");
-            });
-        }
-
-        function updatePlayerPoints(username, points) {
-            const playerRef = db.collection("users").doc(username);
-            playerRef.get().then((doc) => {
-                if (doc.exists) { playerRef.update({ points: firebase.firestore.FieldValue.increment(points) }); }
-                else { playerRef.set({ username: username, points: points }); }
-            });
-        }
-
-        function openLeaderboard() {
-            document.getElementById("leaderboardModal").style.display = "flex";
-            db.collection("users").orderBy("points", "desc").limit(100).get().then((querySnapshot) => {
-                const tbody = document.getElementById("leaderboardRows");
-                tbody.innerHTML = "";
-                let index = 1;
-                querySnapshot.forEach((doc) => {
-                    tbody.innerHTML += `<tr><td>${index++}</td><td>${doc.id}</td><td>${doc.data().points || 0}</td></tr>`;
-                });
-            });
-        }
-        function closeLeaderboard() { document.getElementById("leaderboardModal").style.display = "none"; }
-        function closeLateModal() { document.getElementById("lateModal").style.display = "none"; document.getElementById("playerAnswer").value = ""; }
-        
-        db.collection("game").doc("current_puzzle").onSnapshot((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                document.getElementById("currentStory").innerText = data.story;
-                document.getElementById("currentHint").innerText = "تلميح: " + (data.hint || "لا يوجد");
-                document.getElementById("storyTitleType").innerText = data.title;
-            }
-        });
-    </script>
+        function checkAnswer() {
+            const playerInput = document.getElementById("playerAnswer").value.trim();
+            db.collection("game").doc("current_puzzle").get().then((doc) => {
+                const data = doc.data();
+                if (playerInput === data.password) {
+                    if (!data.isSolved) {
+                        db.collection("game").doc("current_puzzle").update({ isSolved: true, winner: currentPlayerName });
+                        alert("مبروك! أنت الفائز!");
+                    } else { alert("للأسف، القصة حُلت مسبقاً."); }
+                } else { alert("كلمة السر خاطئة!"); }
+            });
+        }
+        
+        function openLeaderboard() { document.getElementById("leaderboardModal").style.display = "flex"; }
+        function closeLeaderboard() { document.getElementById("leaderboardModal").style.display = "none"; }
+    </script>
 </body>
-</html> عوزك تعدل كود ده تعمل مكان القصه كبير شويه وتصغر حجم خط الاحمر سنه صغيره 
+</html>
