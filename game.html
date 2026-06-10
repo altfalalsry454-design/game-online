@@ -2,129 +2,29 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة الحرامي والبنك - النسخة الاحترافية</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; background-color: #0d1117; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; padding-top: 70px; }
-        header { position: fixed; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 25px; background-color: #161b22; border-bottom: 2px solid #30363d; z-index: 100; }
-        .logo { font-size: 20px; font-weight: bold; color: #ff4757; }
-        .user-tag { font-size: 15px; color: #58a6ff; }
-        .main-wrapper { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
-        .screen { display: none; }
-        .active-screen { display: block; }
-        .lobby-card { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 25px; margin-bottom: 20px; text-align: right; }
-        .lobby-card h2 { margin-top: 0; color: #f5f5f5; font-size: 18px; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
-        .input-field { width: 100%; padding: 12px; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #fff; font-size: 15px; margin-top: 10px; margin-bottom: 10px; text-align: right; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; text-align: center; }
-        .btn-green { background-color: #238636; color: white; }
-        .btn-green:hover { background-color: #2ea043; }
-        .btn-blue { background-color: #1f6feb; color: white; }
-        .btn-blue:hover { background-color: #388bfd; }
-        .btn-red { background-color: #da3637; color: white; }
-        .btn-red:hover { background-color: #f85149; }
-        .rooms-grid { background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; max-height: 250px; overflow-y: auto; margin-top: 10px; }
-        .room-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #21262d; }
-        .join-mini-btn { background-color: #238636; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .room-layout { display: flex; gap: 20px; margin-top: 15px; }
-        .room-column { flex: 1; background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; }
-        .player-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; margin-bottom: 10px; }
-        .host-badge { color: #f1c40f; font-weight: bold; font-size: 13px; }
-        .action-mini-btn { padding: 4px 8px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px; font-weight: bold; }
-        .chat-area { display: flex; flex-direction: column; height: 300px; }
-        .chat-messages { flex-grow: 1; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 10px; overflow-y: auto; font-size: 14px; text-align: right; }
-        .chat-input-group { display: flex; margin-top: 10px; gap: 8px; }
-        .role-card { background: linear-gradient(135deg, #1f6feb 0%, #161b22 100%); border: 2px solid #388bfd; border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 20px; }
-        .role-title { font-size: 28px; font-weight: bold; color: #f1c40f; margin-top: 10px; }
-        .timer-badge { font-size: 22px; font-weight: bold; color: #ff4757; background-color: #0d1117; padding: 6px 20px; border-radius: 20px; display: inline-block; margin-top: 15px; border: 1px solid #30363d; }
-        #alertBox { padding: 12px; border-radius: 6px; margin-bottom: 15px; display: none; font-weight: bold; text-align: center; background-color: rgba(218, 54, 55, 0.2); color: #da3637; border: 1px solid #da3637; }
-    </style>
+    <title>لعبة الحرامي والبنك - نسخة كاملة</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <style>
+        body { background: #0d1117; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .screen { display: none; } .active-screen { display: block; }
+        .btn { padding: 15px; margin: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-green { background: #238636; color: white; }
+        .btn-red { background: #da3637; color: white; }
+    </style>
 </head>
 <body>
-
-    <header>
-        <div class="logo">الحرامي والبنك أونلاين 💰</div>
-        <div class="user-tag">👤 اسمك: <span id="myUsernameDisplay">جاري جلب الاسم...</span></div>
-    </header>
-
-    <div class="main-wrapper">
-        <div id="alertBox"></div>
-
-        <div id="lobbyScreen" class="screen active-screen">
-            <div class="lobby-card">
-                <h2>➕ إنشاء روم جديدة</h2>
-                <input type="text" id="newRoomName" class="input-field" placeholder="اكتب اسم الروم هنا...">
-                <button class="btn btn-green" onclick="createRoomAction()">اضغط هنا لإنشاء الروم وتصبح المالك</button>
-            </div>
-            <div class="lobby-card">
-                <h2>🚪 رومات اللعبة النشطة أونلاين</h2>
-                <div class="rooms-grid" id="roomsContainer">
-                    <p style="text-align: center; color: #8b949e; padding: 20px;">جاري تحميل الرومات...</p>
-                </div>
-                <button class="btn btn-blue" style="margin-top: 10px; padding: 8px;" onclick="refreshRoomsList()">🔄 تحديث القائمة</button>
-            </div>
-        </div>
-
-        <div id="roomScreen" class="screen">
-            <div class="lobby-card" style="text-align: center; margin-bottom: 15px;">
-                <h1 id="roomTitle" style="margin: 0; color: #fff;">اسم الروم</h1>
-                <div style="font-size: 16px; color: #8b949e; margin-top: 10px;">
-                    كود الدخول: <span id="roomCode" style="color: #f1c40f; font-weight: bold; font-size: 20px;">#0000</span>
-                </div>
-            </div>
-            <div class="room-layout">
-                <div class="room-column">
-                    <h3>👤 اللاعبين المتواجدين</h3>
-                    <div id="playersContainer" style="min-height: 150px;"></div>
-                    <div id="ownerControls" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #30363d;">
-                        <button class="btn btn-green" onclick="startGameAction()">🚀 ابدأ اللعبة الآن</button>
-                    </div>
-                </div>
-                <div class="room-column">
-                    <h3>💬 الشات المباشر</h3>
-                    <div class="chat-area">
-                        <div class="chat-messages" id="chatMessagesContainer"></div>
-                        <div class="chat-input-group">
-                            <input type="text" id="chatMessageInput" class="input-field" style="margin:0; flex-grow:1;" placeholder="اكتب رسالة..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
-                            <button class="btn btn-blue" style="width: auto;" onclick="sendChatMessage()">إرسال</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button class="btn btn-red" style="margin-top: 20px;" onclick="leaveRoomAction()">🚪 مغادرة والعودة للرئيسية</button>
-        </div>
-
-        <div id="gameplayScreen" class="screen">
-            <div class="role-card">
-                <h2>🔍 هويتك السرية هي:</h2>
-                <div id="mySecretRole" class="role-title">جاري التحديد...</div>
-                <p id="roleDescription" style="color: #e1e1e1; margin-top: 10px; font-size: 16px;"></p>
-                <div class="timer-badge">⏳ المتبقي: <span id="gameTimer">05:00</span></div>
-            </div>
-            <div class="room-layout">
-                <div class="room-column" style="flex: 2;">
-                    <h3>💬 شات التحقيق</h3>
-                    <div class="chat-area">
-                        <div class="chat-messages" id="gameChatMessagesContainer"></div>
-                        <div class="chat-input-group">
-                            <input type="text" id="gameChatMessageInput" class="input-field" style="margin:0; flex-grow:1;" placeholder="ناقش واكشف الحرامي..." onkeypress="if(event.key === 'Enter') sendGameChatMessage()">
-                            <button class="btn btn-blue" style="width: auto;" onclick="sendGameChatMessage()">إرسال</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="room-column">
-                    <h3>👥 المشتبه فيهم في الدور</h3>
-                    <div id="gamePlayersListContainer"></div>
-                </div>
-            </div>
-            <div id="ownerEndControls" style="display: none; margin-top: 20px;">
-                <button class="btn btn-red" onclick="endGameAction()">🛑 إنهاء الجولة</button>
-            </div>
-        </div>
+    <div id="lobby" class="screen active-screen">
+        <h1>لعبة الحرامي والبنك</h1>
+        <input type="text" id="roomName" placeholder="اسم الروم..." style="padding: 10px;">
+        <button class="btn btn-green" onclick="createRoom()">إنشاء الروم</button>
     </div>
-
+    <div id="gameRoom" class="screen">
+        <h2 id="roomTitle"></h2>
+        <div id="roleBox" style="font-size: 25px; color: #f1c40f; margin: 20px;"></div>
+        <div id="timer" style="font-size: 20px; color: red;"></div>
+        <button id="startBtn" class="btn btn-green" style="display:none" onclick="startGame()">بدء اللعبة</button>
+    </div>
     <script src="game.js"></script>
 </body>
 </html>
