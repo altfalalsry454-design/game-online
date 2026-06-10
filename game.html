@@ -82,19 +82,19 @@
     </div>
 
     <script>
-        // --- تهيئة Firebase بالإعدادات الجديدة ---
+        // 🛠️ تم ربط الفايربيز الخاص بك بنجاح
         const firebaseConfig = {
             apiKey: "AIzaSyDCYnbAcV0HtrSyRUorBQmXQuBJO7m1C4A",
             authDomain: "zerobaba-7733e.firebaseapp.com",
-            databaseURL: "https://zerobaba-7733e-default-rtdb.firebaseio.com",
             projectId: "zerobaba-7733e",
             storageBucket: "zerobaba-7733e.firebasestorage.app",
             messagingSenderId: "20311065718",
-            appId: "1:20311065718:web:5e50f0ad492d57f2518b57"
+            appId: "1:20311065718:web:5e50f0ad492d57f2518b57",
+            measurementId: "G-QNV01SE9WV"
         };
-
+        
         firebase.initializeApp(firebaseConfig);
-        firebase.analytics(); // تفعيل التحليلات
+        تفعيل التحليلات
 
         const myUsername = "لاعب_" + Math.floor(Math.random() * 9000);
         document.getElementById('myUsernameDisplay').innerText = myUsername;
