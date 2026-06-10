@@ -2,15 +2,14 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لعبة الحرامي والبنك - نسخة كاملة</title>
+    <title>لعبة الحرامي والبنك</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         body { background: #0d1117; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
         .screen { display: none; } .active-screen { display: block; }
-        .btn { padding: 15px; margin: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .btn { padding: 15px; margin: 10px; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; width: 200px; }
         .btn-green { background: #238636; color: white; }
-        .btn-red { background: #da3637; color: white; }
     </style>
 </head>
 <body>
@@ -21,9 +20,11 @@
     </div>
     <div id="gameRoom" class="screen">
         <h2 id="roomTitle"></h2>
-        <div id="roleBox" style="font-size: 25px; color: #f1c40f; margin: 20px;"></div>
-        <div id="timer" style="font-size: 20px; color: red;"></div>
+        <div id="statusText">في انتظار المالك لبدء اللعبة...</div>
         <button id="startBtn" class="btn btn-green" style="display:none" onclick="startGame()">بدء اللعبة</button>
+    </div>
+    <div id="gamePlay" class="screen">
+        <h2 id="myRole" style="color: #f1c40f;"></h2>
     </div>
     <script src="game.js"></script>
 </body>
