@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة الحرامي والبنك - النسخة المعتمدة</title>
+    <title>لعبة الحرامي والبنك - النسخة المستقرة والمحسنة</title>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; background-color: #0d1117; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; padding-top: 70px; }
@@ -30,16 +30,14 @@
         .room-column { flex: 1; background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; }
         .player-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; margin-bottom: 10px; }
         .host-badge { color: #f1c40f; font-weight: bold; font-size: 13px; }
+        .action-mini-btn { padding: 4px 8px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px; font-weight: bold; }
         .chat-area { display: flex; flex-direction: column; height: 300px; }
         .chat-messages { flex-grow: 1; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 10px; overflow-y: auto; font-size: 14px; text-align: right; }
-        .chat-msg-item { margin-bottom: 8px; }
-        .chat-msg-user { color: #58a6ff; font-weight: bold; }
         .chat-input-group { display: flex; margin-top: 10px; gap: 8px; }
         .role-card { background: linear-gradient(135deg, #1f6feb 0%, #161b22 100%); border: 2px solid #388bfd; border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 20px; }
         .role-title { font-size: 28px; font-weight: bold; color: #f1c40f; margin-top: 10px; }
         .timer-badge { font-size: 22px; font-weight: bold; color: #ff4757; background-color: #0d1117; padding: 6px 20px; border-radius: 20px; display: inline-block; margin-top: 15px; border: 1px solid #30363d; }
-        #alertBox { padding: 12px; border-radius: 6px; margin-bottom: 15px; display: none; font-weight: bold; text-align: center; }
-        .alert-error { background-color: rgba(218, 54, 55, 0.2); color: #da3637; border: 1px solid #da3637; }
+        #alertBox { padding: 12px; border-radius: 6px; margin-bottom: 15px; display: none; font-weight: bold; text-align: center; background-color: rgba(218, 54, 55, 0.2); color: #da3637; border: 1px solid #da3637; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -95,7 +93,7 @@
                     </div>
                 </div>
             </div>
-            <button class="btn btn-red" style="margin-top: 20px;" onclick="leaveRoomAction()">🚪 مغادرة والغاء الروم</button>
+            <button class="btn btn-red" style="margin-top: 20px;" onclick="leaveRoomAction()">🚪 مغادرة والعودة للرئيسية</button>
         </div>
 
         <div id="gameplayScreen" class="screen">
@@ -141,17 +139,16 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // سحب الاسم من الرابط
         const urlParams = new URLSearchParams(window.location.search);
-        const myUsername = urlParams.get('user') || "لاعب_" + Math.floor(1000 + Math.random() * 9000);
+        let myUsername = urlParams.get('user') || "لاعب_" + Math.floor(1000 + Math.random() * 9000);
         document.getElementById('myUsernameDisplay').innerText = myUsername;
 
         let currentRoomId = null, isIAmOwner = false, timerInterval = null, myPlayerKeyInRoom = null;
 
         function triggerAlert(msg) {
             const box = document.getElementById('alertBox');
-            box.innerText = msg; box.className = "alert-error";
-            box.style.display = "block"; setTimeout(() => { box.style.display = "none"; }, 3500);
+            box.innerText = msg; box.style.display = "block"; 
+            setTimeout(() => { box.style.display = "none"; }, 3500);
         }
 
         function switchScreen(id) {
@@ -160,6 +157,9 @@
         }
 
         function createRoomAction() {
+            // تنظيف أي تداخل قديم قبل إنشاء غرفة جديدة
+            detachRoomListeners();
+            
             const name = document.getElementById('newRoomName').value.trim();
             if (!name) { triggerAlert("برجاء إدخال اسم الغرفة أولاً!"); return; }
             
@@ -168,12 +168,7 @@
             currentRoomId = roomRef.key;
             isIAmOwner = true;
 
-            roomRef.set({
-                name: name,
-                code: generatedCode,
-                owner: myUsername,
-                status: "waiting"
-            }).then(() => {
+            roomRef.set({ name: name, code: generatedCode, owner: myUsername, status: "waiting" }).then(() => {
                 const pRef = db.ref(`rooms/${currentRoomId}/players`).push();
                 myPlayerKeyInRoom = pRef.key;
                 pRef.set({ name: myUsername, role: "Owner" }).then(() => {
@@ -183,15 +178,35 @@
         }
 
         function enterRoomLocalSetup(name, code, isOwner, roomId) {
-            currentRoomId = roomId; isIAmOwner = isOwner;
+            currentRoomId = roomId;
+            isIAmOwner = isOwner;
             document.getElementById('roomTitle').innerText = name;
             document.getElementById('roomCode').innerText = "#" + code;
-            document.getElementById('ownerControls').style.display = isOwner ? "block" : "none";
+            
             switchScreen('roomScreen');
 
-            // مراقبة قائمة اللعيبة أونلاين
-            db.ref(`rooms/${roomId}/players`).on('value', (snapshot) => {
-                const players = snapshot.val();
+            // مراقبة قائمة اللاعبين والملكيات بشكل ديناميكي ومباشر
+            db.ref(`rooms/${roomId}`).on('value', (snapshot) => {
+                const roomData = snapshot.val();
+                if (!roomData) {
+                    // إذا حُذفت الغرفة من السيرفر، ارجع للوبي فوراً بدون تعليق
+                    exitRoomUIReset();
+                    return;
+                }
+
+                // تحديث حالة الملكية بناءً على السيرفر (حل مشكلة نقل الملكية)
+                if (roomData.owner === myUsername) {
+                    isIAmOwner = true;
+                    document.getElementById('ownerControls').style.display = "block";
+                    document.getElementById('ownerEndControls').style.display = roomData.status === "playing" ? "block" : "none";
+                } else {
+                    isIAmOwner = false;
+                    document.getElementById('ownerControls').style.display = "none";
+                    document.getElementById('ownerEndControls').style.display = "none";
+                }
+
+                // عرض اللاعبين
+                const players = roomData.players;
                 const container = document.getElementById('playersContainer');
                 container.innerHTML = "";
                 let iAmInList = false;
@@ -199,20 +214,30 @@
                 if (players) {
                     for (let id in players) {
                         if (players[id].name === myUsername) { iAmInList = true; myPlayerKeyInRoom = id; }
-                        container.innerHTML += `<div class="player-row"><span>👤 ${players[id].name}</span>${players[id].role === 'Owner' ? '<span class="host-badge">👑 المالك</span>':''}</div>`;
+                        
+                        let actionButtons = "";
+                        if (players[id].name === roomData.owner) {
+                            actionButtons = '<span class="host-badge">👑 المالك</span>';
+                        } else if (isIAmOwner) {
+                            actionButtons = `<div>
+                                <button class="action-mini-btn" style="background-color:#1f6feb; color:white;" onclick="transferOwnerOnline('${id}', '${players[id].name}')">تعيين مالك</button>
+                            </div>`;
+                        }
+                        
+                        container.innerHTML += `<div class="player-row"><span>👤 ${players[id].name}</span>${actionButtons}</div>`;
                     }
                 }
-                if (!iAmInList && !isIAmOwner) { exitRoomUIReset(); }
+
+                // تحديث شاشة اللعبة بناءً على الحالة المباشرة
+                if (roomData.status === "playing" && document.getElementById('gameplayScreen').style.display !== 'block') {
+                    setupActiveGameplayMode();
+                } else if (roomData.status === "waiting" && document.getElementById('roomScreen').style.display !== 'block') {
+                    if (timerInterval) clearInterval(timerInterval);
+                    switchScreen('roomScreen');
+                }
             });
 
-            // مراقبة حالة الجيم (ابدأ / انتظر) لكل المتصلين في نفس اللحظة
-            db.ref(`rooms/${roomId}/status`).on('value', (snapshot) => {
-                const status = snapshot.val();
-                if (status === "playing") setupActiveGameplayMode();
-                else if (status === "waiting") { if (timerInterval) clearInterval(timerInterval); switchScreen('roomScreen'); }
-            });
-
-            // مزامنة الشات العادي
+            // مزامنة الشات
             db.ref(`rooms/${roomId}/chat`).on('value', (snapshot) => {
                 const chats = snapshot.val();
                 const c = document.getElementById('chatMessagesContainer'); c.innerHTML = "";
@@ -220,18 +245,27 @@
             });
         }
 
-        // تصليح الـ Logic الجوهري لبدء الجيم أونلاين مع صحابك
+        function transferOwnerOnline(playerKey, playerName) {
+            if (confirm(`هل تريد بالتأكيد نقل الملكية بالكامل إلى ${playerName}؟`)) {
+                let updates = {};
+                updates[`rooms/${currentRoomId}/owner`] = playerName;
+                updates[`rooms/${currentRoomId}/players/${playerKey}/role`] = "Owner";
+                updates[`rooms/${currentRoomId}/players/${myPlayerKeyInRoom}/role`] = "Player";
+                db.ref().update(updates);
+            }
+        }
+
         function startGameAction() {
             db.ref(`rooms/${currentRoomId}/players`).once('value').then((snapshot) => {
                 const playersObj = snapshot.val();
                 if (!playersObj) return;
 
                 const keys = Object.keys(playersObj);
-                
-                // خلط اللاعبين لتوزيع الأدوار
+                if (keys.length < 2) { triggerAlert("يجب دخول لاعبين على الأقل لبدء التحدي!"); return; }
+
                 let shuffled = [...keys].sort(() => Math.random() - 0.5);
                 let thiefId = shuffled[0];
-                let bankId = shuffled[1] || shuffled[0]; // لو العدد قليل يختار المتاح
+                let bankId = shuffled[1] || shuffled[0];
 
                 let updates = {};
                 keys.forEach((key) => {
@@ -241,16 +275,14 @@
                     if (key === thiefId) {
                         roleName = "🥷 الحرامي";
                         roleDesc = "مهمتك: شتت العساكر في الشات ومخليهمش يكتشفوا هويتك السرية خالص!";
-                    } else if (key === bankId && keys.length > 1) {
+                    } else if (key === bankId && keys.length > 2) {
                         roleName = "🏦 البنك المستهدف";
                         roleDesc = "أنت البنك! حاول تلمح للعساكر بهويتك بذكاء من غير ما الحرامي يلقط كلامك.";
                     }
-
                     updates[`rooms/${currentRoomId}/players/${key}/ingameRole`] = roleName;
                     updates[`rooms/${currentRoomId}/players/${key}/ingameDesc`] = roleDesc;
                 });
 
-                // تغيير الحالة لـ playing يقلب الشاشة عند الكل فوراً
                 updates[`rooms/${currentRoomId}/status`] = "playing";
                 db.ref().update(updates);
             });
@@ -258,9 +290,7 @@
 
         function setupActiveGameplayMode() {
             switchScreen('gameplayScreen');
-            document.getElementById('ownerEndControls').style.display = isIAmOwner ? "block" : "none";
             
-            // سحب دوري السري من السيرفر وعرضه
             db.ref(`rooms/${currentRoomId}/players/${myPlayerKeyInRoom}`).once('value').then((snapshot) => {
                 const myData = snapshot.val();
                 if (myData) {
@@ -269,25 +299,18 @@
                 }
             });
 
-            // عرض قائمة المشتبه فيهم في شاشة اللعب
             db.ref(`rooms/${currentRoomId}/players`).once('value').then((snapshot) => {
                 const list = snapshot.val();
                 const container = document.getElementById('gamePlayersListContainer'); container.innerHTML = "";
-                if (list) {
-                    for (let id in list) {
-                        container.innerHTML += `<div style="padding: 8px; border-bottom: 1px solid #21262d; color: #8b949e;">👤 ${list[id].name}</div>`;
-                    }
-                }
+                if (list) { for (let id in list) { container.innerHTML += `<div style="padding: 8px; border-bottom: 1px solid #21262d; color: #8b949e;">👤 ${list[id].name}</div>`; } }
             });
 
-            // شات التحقيق المباشر
             db.ref(`rooms/${currentRoomId}/gameChat`).on('value', (snapshot) => {
                 const chats = snapshot.val();
                 const c = document.getElementById('gameChatMessagesContainer'); c.innerHTML = "";
                 if (chats) { for (let id in chats) { c.innerHTML += `<div><b>${chats[id].user}:</b> ${chats[id].text}</div>`; } c.scrollTop = c.scrollHeight; }
             });
 
-            // عداد الجولة (5 دقائق)
             if (timerInterval) clearInterval(timerInterval);
             let time = 300;
             timerInterval = setInterval(() => {
@@ -307,14 +330,39 @@
             db.ref(`rooms/${currentRoomId}/gameChat`).push().set({ user: myUsername, text: i.value.trim() }); i.value = "";
         }
 
-        function endGameAction() {
-            db.ref(`rooms/${currentRoomId}/gameChat`).remove();
-            db.ref(`rooms/${currentRoomId}/status`).set("waiting");
+        function endGameAction() { 
+            db.ref(`rooms/${currentRoomId}/gameChat`).remove(); 
+            db.ref(`rooms/${currentRoomId}/status`).set("waiting"); 
+        }
+        
+        function leaveRoomAction() {
+            if (!currentRoomId) return;
+
+            if (isIAmOwner) {
+                // إذا خرج المالك، تُحذف الغرفة بالكامل من السيرفر فوراً
+                db.ref(`rooms/${currentRoomId}`).remove().then(() => { exitRoomUIReset(); });
+            } else {
+                // إذا خرج لاعب عادي، يمسح نفسه فقط وينظف المتصفح
+                db.ref(`rooms/${currentRoomId}/players/${myPlayerKeyInRoom}`).remove().then(() => { exitRoomUIReset(); });
+            }
         }
 
-        function leaveRoomAction() {
-            if (isIAmOwner) db.ref(`rooms/${currentRoomId}`).remove().then(() => location.reload());
-            else db.ref(`rooms/${currentRoomId}/players/${myPlayerKeyInRoom}`).remove().then(() => location.reload());
+        function detachRoomListeners() {
+            if (currentRoomId) {
+                db.ref(`rooms/${currentRoomId}`).off();
+                db.ref(`rooms/${currentRoomId}/chat`).off();
+                db.ref(`rooms/${currentRoomId}/gameChat`).off();
+            }
+        }
+
+        function exitRoomUIReset() {
+            detachRoomListeners();
+            currentRoomId = null;
+            myPlayerKeyInRoom = null;
+            isIAmOwner = false;
+            if (timerInterval) clearInterval(timerInterval);
+            switchScreen('lobbyScreen');
+            refreshRoomsList();
         }
 
         function refreshRoomsList() {
@@ -328,17 +376,15 @@
         }
 
         function directJoinFromList(id, name, code) {
+            detachRoomListeners(); // تنظيف قبل الدخول
             isIAmOwner = false;
             const pRef = db.ref(`rooms/${id}/players`).push();
             myPlayerKeyInRoom = pRef.key;
             pRef.set({ name: myUsername, role: "Player" }).then(() => { enterRoomLocalSetup(name, code, false, id); });
         }
 
-        function exitRoomUIReset() {
-            currentRoomId = null; isIAmOwner = false; myPlayerKeyInRoom = null;
-            if (timerInterval) clearInterval(timerInterval);
-            switchScreen('lobbyScreen'); refreshRoomsList();
-        }
+        // مسح بيانات اللاعب تلقائياً لو قفل المتصفح فجأة لتجنب الرومات الميتة والأسماء المكررة
+        window.addEventListener('beforeunload', () => { leaveRoomAction(); });
 
         setTimeout(refreshRoomsList, 500);
     </script>
