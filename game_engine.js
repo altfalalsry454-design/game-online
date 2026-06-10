@@ -18,22 +18,24 @@ function createRoom() {
     document.getElementById('gameRoom').classList.add('active-screen');
     document.getElementById('roomTitle').innerText = name;
     document.getElementById('startBtn').style.display = "block";
+
+    // مراقبة حالة الروم
+    db.ref(`rooms/${roomId}`).on('value', (snap) => {
+        if(snap.val().status === "playing") {
+            document.getElementById('gameRoom').classList.remove('active-screen');
+            document.getElementById('gamePlay').classList.add('active-screen');
+            document.getElementById('myRole').innerText = "تم توزيع الأدوار! دورك هو: " + (snap.val().roles?.[playerName] || "مراقب");
+        }
+    });
 }
 
 function startGame() {
-    // 1. نظام توزيع الأدوار العشوائي
     const roles = ["الحرامي", "البنك", "العسكري"];
-    const randomRole = roles[Math.floor(Math.random() * roles.length)];
+    let gameRoles = {};
+    gameRoles[playerName] = roles[Math.floor(Math.random() * roles.length)];
     
-    // 2. تحديث الحالة في الفايربيز للجميع
-    db.ref(`rooms/${roomId}`).update({ status: "playing" });
-    document.getElementById('roleBox').innerText = "دورك هو: " + randomRole;
-    
-    // 3. التايمر
-    let time = 60;
-    let timer = setInterval(() => {
-        time--;
-        document.getElementById('timer').innerText = "الوقت المتبقي: " + time;
-        if(time <= 0) { clearInterval(timer); alert("انتهت الجولة!"); }
-    }, 1000);
+    db.ref(`rooms/${roomId}`).update({ 
+        status: "playing",
+        roles: gameRoles 
+    });
 }
