@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم المطلقة للأدمن - Zero</title>
+    <!-- مكتبات Firebase الأساسية للربط أونلاين -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; background-color: #0d1117; color: #ffffff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+        .admin-box { background-color: #161b22; padding: 40px; border-radius: 10px; border: 1px solid #ff4757; width: 100%; max-width: 550px; text-align: center; box-shadow: 0 10px 30px rgba(255, 71, 87, 0.2); }
+        .input-group { text-align: right; margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #8b949e; font-weight: bold; font-size: 14px; }
+        .input-group input, .input-group select { width: 100%; padding: 12px; box-sizing: border-box; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: white; font-size: 16px; }
+        .input-group input:focus, .input-group select:focus { border-color: #ff4757; outline: none; }
+        
+        button { width: 100%; padding: 14px; background-color: #ff4757; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 15px; }
+        button:hover { background-color: #ff6b81; }
+        
+        /* تنبيه الحفظ الداخلي */
+        #adminAlert { margin-top: 20px; padding: 12px; border-radius: 5px; display: none; background-color: #23863652; color: #238636; border: 1px solid #238636; font-weight: bold; text-align: center; }
+        .logout-link { color: #8b949e; text-decoration: none; display: block; margin-top: 25px; font-size: 14px; transition: 0.2s; }
+        .logout-link:hover { color: #ff4757; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-box">
+        <h1 style="color:#ff4757; margin-top: 0; margin-bottom:10px;">🖥️ لوحة التحكم المطلقة (Zero)</h1>
+        <p style="color:#8b949e; margin-bottom:30px;">تعديل ميكانيكا اللعبة، العدادات، وصلاحيات السيرفر بالكامل:</p>
+
+        <!-- 1️⃣ تعديل أسماء الأدوار -->
+        <div class="input-group">
+            <label>تعديل مسمى فريق اللصوص (الحرامية)</label>
+            <input type="text" id="thiefTitle" value="الحرامية">
+        </div>
+
+        <div class="input-group">
+            <label>تعديل مسمى فريق التخريب (مدير البنك)</label>
+            <input type="text" id="managerTitle" value="مدير البنك المخرب">
+        </div>
+
+        <!-- 2️⃣ ميكانيكا وسرعة اللعبة -->
+        <div class="input-group">
+            <label>سرعة تنازل عداد الأبواب (بالثانية - كل ما قل الرقم زادت السرعة)</label>
+            <input type="number" id="counterSpeed" value="1" step="0.1" min="0.1">
+        </div>
+
+        <!-- 3️⃣ متجر الميزات النقاط -->
+        <div class="input-group">
+            <label>سعر شراء الميزات العشوائية في المتجر (بالنقاط)</label>
+            <input type="number" id="priceFeatures" value="3000" step="500">
+        </div>
+
+        <!-- 4️⃣ التحكم في السيرفر -->
+        <div class="input-group">
+            <label>حالة السيرفر العامة للموقع</label>
+            <select id="serverStatus">
+                <option value="online">🟢 مستقر وشغال للجميع (Online)</option>
+                <option value="maintenance">🔴 صيانة مؤقتة للموقع (Maintenance)</option>
+            </select>
+        </div>
+
+        <!-- زر الحفظ أونلاين -->
+        <button onclick="saveGlobalSettings()">💾 حفظ كل الإعدادات وتحديث اللعبة فوراً</button>
+        
+        <!-- صندوق التنبيه الداخلي بدون نوافذ خارجية -->
+        <div id="adminAlert">تم حفظ التعديلات وتحديث قاعدة البيانات أونلاين! 🔥</div>
+        
+        <a href="login.html" class="logout-link">← تسجيل الخروج والعودة للرئيسية</a>
+    </div>
+
+    <script>
+        // 🛠️ تم ربط الفايربيز الخاص بك بنجاح
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCYnbAcV0HtrSyRUorBQmXQuBJO7m1C4A",
+            authDomain: "zerobaba-7733e.firebaseapp.com",
+            projectId: "zerobaba-7733e",
+            storageBucket: "zerobaba-7733e.firebasestorage.app",
+            messagingSenderId: "20311065718",
+            appId: "1:20311065718:web:5e50f0ad492d57f2518b57",
+            measurementId: "G-QNV01SE9WV"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        
+        // أول ما الصفحة تفتح، تجيب الإعدادات القديمة المتسيفة في الفايربيز وتحطها في الخانات تلقائياً
+        firebase.database().ref('gameSettings/').once('value').then((snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                if(data.thiefTitle) document.getElementById('thiefTitle').value = data.thiefTitle;
+                if(data.managerTitle) document.getElementById('managerTitle').value = data.managerTitle;
+                if(data.counterSpeed) document.getElementById('counterSpeed').value = data.counterSpeed;
+                if(data.priceFeatures) document.getElementById('priceFeatures').value = data.priceFeatures;
+                if(data.serverStatus) document.getElementById('serverStatus').value = data.serverStatus;
+            }
+        });
+
+        // دالة حفظ الإعدادات وإرسالها لـ Firebase
+        function saveGlobalSettings() {
+            const settings = {
+                thiefTitle: document.getElementById('thiefTitle').value.trim(),
+                managerTitle: document.getElementById('managerTitle').value.trim(),
+                counterSpeed: parseFloat(document.getElementById('counterSpeed').value) || 1,
+                priceFeatures: parseInt(document.getElementById('priceFeatures').value) || 3000,
+                serverStatus: document.getElementById('serverStatus').value
+            };
+
+            // رفع الداتا على قاعدة البيانات أونلاين
+            firebase.database().ref('gameSettings/').set(settings);
+
+            // إظهار التنبيه الأنيق جوة الموقع
+            const alertBox = document.getElementById('adminAlert');
+            alertBox.style.display = 'block';
+            
+            // إخفاء التنبيه بعد 3 ثوانٍ
+            setTimeout(() => { alertBox.style.display = 'none'; }, 3000);
+        }
+    </script>
+</body>
+</html>

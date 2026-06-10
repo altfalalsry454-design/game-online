@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منطقة اللعب - الحرامي والبنك</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; background-color: #0d1117; color: #ffffff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding-top: 80px; box-sizing: border-box; }
+        header { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; box-sizing: border-box; background-color: #161b22; border-bottom: 2px solid #30363d; z-index: 10; }
+        .container { background-color: #161b22; padding: 30px; border-radius: 10px; border: 1px solid #30363d; width: 100%; max-width: 500px; text-align: center; position: relative; }
+        .screen { display: none; }
+        .active { display: block; }
+        .list-box { background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 10px; margin: 15px 0; text-align: right; max-height: 180px; overflow-y: auto; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #21262d; }
+        input { width: 100%; padding: 12px; box-sizing: border-box; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: white; margin-bottom: 15px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-green { background-color: #238636; color: white; }
+        .btn-blue { background-color: #00a8ff; color: white; }
+        .btn-red { background-color: #eb4d4b; color: white; }
+        .action-btns button { width: auto; padding: 5px 8px; font-size: 12px; margin: 0; margin-left: 5px; }
+        #gameAlert { padding: 10px; margin-top: 10px; border-radius: 5px; display: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="font-size:20px; font-weight:bold; color:#ff4757;">البنك والحرامي أونلاين</div>
+        <div>اللاعب: <span id="navUser" style="color:#00a8ff; font-weight:bold;">-</span></div>
+    </header>
+
+    <div class="container">
+        <!-- شاشة الاختيار (اللوبي) -->
+        <div id="lobbyScreen" class="screen active">
+            <h2>ردهة الغرف العامة</h2>
+            <button class="btn-green" onclick="showScreen('createScreen')">➕ إنشاء غرفة (روم) جديدة</button>
+            <hr style="border-color:#30363d; margin:20px 0;">
+            <h3>🚪 الرومات النشطة بالموقع</h3>
+            <div class="list-box" id="roomsContainer"></div>
+            <button class="btn-blue" onclick="loadRoomsFromFirebase()">🔄 تحديث القائمة</button>
+        </div>
+
+        <!-- شاشة إعدادات إنشاء الروم -->
+        <div id="createScreen" class="screen">
+            <h2>🛠️ إعدادات الروم الخاص بك</h2>
+            <input type="text" id="rName" placeholder="اسم الروم (مثلاً: روم الأساطير)">
+            <input type="password" id="rPass" placeholder="كلمة سر الروم (اتركها فارغة لو عامة)">
+            <button class="btn-green" onclick="createNewRoomSetup()">تأكيد وإنشاء الغرفة</button>
+            <button class="btn-red" onclick="showScreen('lobbyScreen')">إلغاء</button>
+        </div>
+
+        <!-- شاشة الانتظار داخل الروم -->
+        <div id="roomScreen" class="screen">
+            <h2 id="roomTitleDisplay">اسم الروم</h2>
+            <p style="color:#8b949e;">كود الغرفة: <span id="roomCodeDisplay" style="color:#f1c40f;">#0000</span></p>
+            <h3>👥 اللاعبين الحاليين:</h3>
+            <div class="list-box" id="playersContainer"></div>
+            <button class="btn-green" id="startBtn" style="display:none;" onclick="startTheGame()">ابدأ اللعبة 🚀</button>
+            <button class="btn-red" onclick="exitRoom()">🚪 مغادرة الغرفة</button>
+        </div>
+
+        <div id="gameAlert"></div>
+    </div>
+
+    <script>
+        // 🛠️ تم ربط الفايربيز الخاص بك بنجاح
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCYnbAcV0HtrSyRUorBQmXQuBJO7m1C4A",
+            authDomain: "zerobaba-7733e.firebaseapp.com",
+            projectId: "zerobaba-7733e",
+            storageBucket: "zerobaba-7733e.firebasestorage.app",
+            messagingSenderId: "20311065718",
+            appId: "1:20311065718:web:5e50f0ad492d57f2518b57",
+            measurementId: "G-QNV01SE9WV"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const myName = urlParams.get('user') || "لاعب مجهول";
+        document.getElementById('navUser').innerText = myName;
+
+        let currentCode = "";
+        let isHost = false;
+
+        let activeRoomsDemo = [{ name: "سرقة بنك مصر", code: "1234", hasPass: true, players: ["أحمد"] }];
+        let playersDemo = [];
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function triggerAlert(text, isErr) {
+            const box = document.getElementById('gameAlert');
+            box.innerText = text;
+            box.style.backgroundColor = isErr ? "#ff475752" : "#23863652";
+            box.style.color = isErr ? "#ff4757" : "#238636";
+            box.style.display = "block";
+            setTimeout(() => box.style.display = "none", 3000);
+        }
+
+        function loadRoomsFromFirebase() {
+            const container = document.getElementById('roomsContainer');
+            container.innerHTML = "";
+            activeRoomsDemo.forEach(r => {
+                container.innerHTML += `
+                    <div class="item-row">
+                        <span><b>${r.name}</b> ${r.hasPass ? '🔒' : '🔓'}</span>
+                        <button class="btn-green" style="width:auto; margin:0; padding:5px 10px;" onclick="joinRoomFunc('${r.code}', ${r.hasPass})">انضمام</button>
+                    </div>
+                `;
+            });
+        }
+
+        function createNewRoomSetup() {
+            const name = document.getElementById('rName').value.trim() || "روم جديد";
+            const pass = document.getElementById('rPass').value;
+            currentCode = Math.floor(1000 + Math.random() * 9000).toString();
+            isHost = true;
+
+            playersDemo = [{ name: myName, role: "قائد", id: "p1" }, { name: "محمد", role: "لاعب", id: "p2" }];
+            activeRoomsDemo.push({ name: name, code: currentCode, hasPass: pass !== "", players: [myName, "محمد"] });
+
+            document.getElementById('roomTitleDisplay').innerText = name;
+            document.getElementById('roomCodeDisplay').innerText = "#" + currentCode;
+            
+            triggerAlert("تم إنشاء الغرفة بنجاح كقائد!", false);
+            updatePlayersUI();
+            showScreen('roomScreen');
+        }
+
+        function joinRoomFunc(code, hasPass) {
+            if (hasPass) {
+                let p = prompt("أدخل كلمة سر الغرفة المحمية:");
+                if (!p) return;
+            }
+            isHost = false;
+            currentCode = code;
+            playersDemo = [{ name: "قائد الغرفة", role: "قائد", id: "p1" }, { name: myName, role: "لاعب", id: "p2" }];
+            document.getElementById('roomTitleDisplay').innerText = "غرفة أونلاين";
+            document.getElementById('roomCodeDisplay').innerText = "#" + code;
+            updatePlayersUI();
+            showScreen('roomScreen');
+        }
+
+        function updatePlayersUI() {
+            const container = document.getElementById('playersContainer');
+            container.innerHTML = "";
+            playersDemo.forEach(p => {
+                let btns = p.role === "قائد" ? '<span style="color:#f1c40f;">👑 القائد</span>' : '';
+                if (isHost && p.role !== "قائد") {
+                    btns = `
+                        <div class="action-btns">
+                            <button class="btn-blue" onclick="makeHost('${p.id}')">إعطاء قيادة</button>
+                            <button class="btn-red" onclick="kickPlayer('${p.id}')">طرد</button>
+                        </div>
+                    `;
+                }
+                container.innerHTML += `<div class="item-row" id="${p.id}"><span>👤 ${p.name}</span>${btns}</div>`;
+            });
+            document.getElementById('startBtn').style.display = isHost ? "block" : "none";
+        }
+
+        function kickPlayer(id) {
+            document.getElementById(id).style.opacity = "0.3";
+            triggerAlert("تم طرد اللاعب بنجاح!", true);
+        }
+
+        function makeHost(id) {
+            isHost = false;
+            playersDemo.forEach(p => { if(p.id === id) p.role = "قائد"; else if(p.name === myName) p.role = "لاعب"; });
+            triggerAlert("تم نقل قيادة الروم لزميلك!", false);
+            updatePlayersUI();
+        }
+
+        function exitRoom() { showScreen('lobbyScreen'); }
+        function startTheGame() { triggerAlert("🔥 انطلقت الجولة الأولى والعداد شغال!", false); }
+        
+        loadRoomsFromFirebase();
+    </script>
+</body>
+</html>

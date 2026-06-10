@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - الحرامي والبنك</title>
+    <!-- مكتبات Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; background-color: #0d1117; color: #ffffff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .login-container { background-color: #161b22; padding: 40px; border-radius: 10px; border: 1px solid #30363d; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .input-group { text-align: right; margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #8b949e; }
+        .input-group input { width: 100%; padding: 12px; box-sizing: border-box; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: white; font-size: 16px; }
+        .btn-submit { width: 100%; padding: 12px; background-color: #238636; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .btn-submit:hover { background-color: #2ea043; }
+        .toggle-auth { margin-top: 20px; font-size: 14px; color: #8b949e; }
+        .toggle-auth a { color: #58a6ff; text-decoration: none; margin-right: 5px; }
+        #alertBox { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; font-weight: bold; }
+        .err { background-color: #ff475752; color: #ff4757; border: 1px solid #ff4757; }
+        .succ { background-color: #23863652; color: #238636; border: 1px solid #238636; }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h1 id="mainTitle">الحرامي والبنك</h1>
+        <form onsubmit="handleAuth(event)">
+            <div class="input-group">
+                <label>اسم المستخدم</label>
+                <input type="text" id="username" required placeholder="مثال: Ahmad">
+            </div>
+            <div class="input-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="password" required placeholder="أدخل كلمة المرور">
+            </div>
+            <button type="submit" class="btn-submit" id="btnSubmit">تسجيل الدخول</button>
+        </form>
+
+        <div id="alertBox"></div>
+
+        <div class="toggle-auth">
+            <span id="toggleText">ليس لديك حساب؟</span>
+            <a href="#" id="toggleLink" onclick="toggleAuthMode()">إنشاء حساب جديد</a>
+        </div>
+    </div>
+
+    <script>
+        // 🛠️ تم ربط الفايربيز الخاص بك بنجاح
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCYnbAcV0HtrSyRUorBQmXQuBJO7m1C4A",
+            authDomain: "zerobaba-7733e.firebaseapp.com",
+            projectId: "zerobaba-7733e",
+            storageBucket: "zerobaba-7733e.firebasestorage.app",
+            messagingSenderId: "20311065718",
+            appId: "1:20311065718:web:5e50f0ad492d57f2518b57",
+            measurementId: "G-QNV01SE9WV"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+
+        let isSignUpMode = false;
+
+        function showAlert(txt, type) {
+            const box = document.getElementById('alertBox');
+            box.innerText = txt;
+            box.className = type;
+            box.style.display = 'block';
+        }
+
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            document.getElementById('mainTitle').innerText = isSignUpMode ? "إنشاء حساب جديد" : "الحرامي والبنك";
+            document.getElementById('btnSubmit').innerText = isSignUpMode ? "سجل الآن" : "تسجيل الدخول";
+            document.getElementById('toggleText').innerText = isSignUpMode ? "لديك حساب بالفعل؟" : "ليس لديك حساب؟";
+            document.getElementById('toggleLink').innerText = isSignUpMode ? "تسجيل الدخول" : "إنشاء حساب جديد";
+        }
+
+        async function handleAuth(event) {
+            event.preventDefault();
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+
+            // لو الأدمن دخل
+            if (user === "Zero" && pass === "159357") {
+                showAlert("أهلاً بك يا أدمن Zero! جاري فتح لوحة التحكم...", "succ");
+                setTimeout(() => { window.location.href = "admin.html"; }, 1000);
+                return;
+            }
+
+            try {
+                const email = user + "@game.com";
+                if (isSignUpMode) {
+                    let res = await firebase.auth().createUserWithEmailAndPassword(email, pass);
+                    await firebase.database().ref('users/' + res.user.uid).set({ username: user, points: 0 });
+                    showAlert("تم إنشاء الحساب بنجاح!", "succ");
+                } else {
+                    await firebase.auth().signInWithEmailAndPassword(email, pass);
+                    showAlert("تم تسجيل الدخول بنجاح!", "succ");
+                }
+                setTimeout(() => { window.location.href = "game.html?user=" + user; }, 1000);
+            } catch (err) {
+                showAlert("خطأ: " + err.message, "err");
+            }
+        }
+    </script>
+</body>
+</html>
