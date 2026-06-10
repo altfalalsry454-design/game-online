@@ -3,27 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الحرامي والبنك أونلاين - نسخة مستقرة</title>
-    
+    <title>لعبة الحرامي والبنك - النسخة المعتمدة</title>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; background-color: #0d1117; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; padding-top: 70px; }
-        
         header { position: fixed; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 25px; background-color: #161b22; border-bottom: 2px solid #30363d; z-index: 100; }
         .logo { font-size: 20px; font-weight: bold; color: #ff4757; }
         .user-tag { font-size: 15px; color: #58a6ff; }
-
-        .main-wrapper { max-width: 1200px; margin: 20px auto; padding: 0 15px; display: block; }
-        
+        .main-wrapper { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
         .screen { display: none; }
         .active-screen { display: block; }
-
         .lobby-card { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 25px; margin-bottom: 20px; text-align: right; }
         .lobby-card h2 { margin-top: 0; color: #f5f5f5; font-size: 18px; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
-        
         .input-field { width: 100%; padding: 12px; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #fff; font-size: 15px; margin-top: 10px; margin-bottom: 10px; text-align: right; }
-        .input-field:focus { border-color: #58a6ff; outline: none; }
-        
         .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; text-align: center; }
         .btn-green { background-color: #238636; color: white; }
         .btn-green:hover { background-color: #2ea043; }
@@ -31,33 +23,24 @@
         .btn-blue:hover { background-color: #388bfd; }
         .btn-red { background-color: #da3637; color: white; }
         .btn-red:hover { background-color: #f85149; }
-
         .rooms-grid { background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; max-height: 250px; overflow-y: auto; margin-top: 10px; }
         .room-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #21262d; }
         .join-mini-btn { background-color: #238636; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-
         .room-layout { display: flex; gap: 20px; margin-top: 15px; }
         .room-column { flex: 1; background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; }
-        
         .player-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; margin-bottom: 10px; }
         .host-badge { color: #f1c40f; font-weight: bold; font-size: 13px; }
-        .action-mini-btn { padding: 4px 8px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px; font-weight: bold; }
-
         .chat-area { display: flex; flex-direction: column; height: 300px; }
         .chat-messages { flex-grow: 1; background-color: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 10px; overflow-y: auto; font-size: 14px; text-align: right; }
-        .chat-msg-item { margin-bottom: 8px; line-height: 1.4; }
+        .chat-msg-item { margin-bottom: 8px; }
         .chat-msg-user { color: #58a6ff; font-weight: bold; }
         .chat-input-group { display: flex; margin-top: 10px; gap: 8px; }
-
         .role-card { background: linear-gradient(135deg, #1f6feb 0%, #161b22 100%); border: 2px solid #388bfd; border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 20px; }
-        .role-title { font-size: 28px; font-weight: bold; color: #f1c40f; margin-top: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .role-title { font-size: 28px; font-weight: bold; color: #f1c40f; margin-top: 10px; }
         .timer-badge { font-size: 22px; font-weight: bold; color: #ff4757; background-color: #0d1117; padding: 6px 20px; border-radius: 20px; display: inline-block; margin-top: 15px; border: 1px solid #30363d; }
-
         #alertBox { padding: 12px; border-radius: 6px; margin-bottom: 15px; display: none; font-weight: bold; text-align: center; }
-        .alert-success { background-color: rgba(35, 134, 54, 0.2); color: #238636; border: 1px solid #238636; }
         .alert-error { background-color: rgba(218, 54, 55, 0.2); color: #da3637; border: 1px solid #da3637; }
     </style>
-
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
@@ -77,86 +60,71 @@
                 <input type="text" id="newRoomName" class="input-field" placeholder="اكتب اسم الروم هنا...">
                 <button class="btn btn-green" onclick="createRoomAction()">اضغط هنا لإنشاء الروم وتصبح المالك</button>
             </div>
-
             <div class="lobby-card">
                 <h2>🚪 رومات اللعبة النشطة أونلاين</h2>
                 <div class="rooms-grid" id="roomsContainer">
-                    <p style="text-align: center; color: #8b949e; padding: 20px;">جاري تحميل الرومات النشطة...</p>
+                    <p style="text-align: center; color: #8b949e; padding: 20px;">جاري تحميل الرومات...</p>
                 </div>
-                <button class="btn btn-blue" style="margin-top: 10px; padding: 8px;" onclick="refreshRoomsList()">🔄 تحديث قائمة الرومات المتاحة</button>
-            </div>
-
-            <div class="lobby-card">
-                <h2>🔑 انضمام إلى الروم (عن طريق الكود)</h2>
-                <input type="text" id="searchRoomCode" class="input-field" placeholder="أدخل كود الروم المكون من 4 أرقام...">
-                <button class="btn btn-blue" onclick="joinRoomByCodeAction()">انضمام إلى الروم مباشرة</button>
+                <button class="btn btn-blue" style="margin-top: 10px; padding: 8px;" onclick="refreshRoomsList()">🔄 تحديث القائمة</button>
             </div>
         </div>
 
         <div id="roomScreen" class="screen">
             <div class="lobby-card" style="text-align: center; margin-bottom: 15px;">
-                <h1 id="roomTitle" style="margin: 0 0 10px 0; font-size: 22px; color: #fff;">اسم الروم الحالي</h1>
-                <div style="font-size: 16px; color: #8b949e;">
-                    كود الدخول السريع: <span id="roomCode" style="color: #f1c40f; font-weight: bold; font-size: 20px;">#0000</span>
+                <h1 id="roomTitle" style="margin: 0; color: #fff;">اسم الروم</h1>
+                <div style="font-size: 16px; color: #8b949e; margin-top: 10px;">
+                    كود الدخول: <span id="roomCode" style="color: #f1c40f; font-weight: bold; font-size: 20px;">#0000</span>
                 </div>
             </div>
-
             <div class="room-layout">
                 <div class="room-column">
-                    <h3 style="margin-top: 0; border-bottom: 1px solid #30363d; padding-bottom: 8px;">👤 قائمة اللاعبين في الروم</h3>
-                    <div id="playersContainer" style="min-height: 200px;"></div>
-                    
+                    <h3>👤 اللاعبين المتواجدين</h3>
+                    <div id="playersContainer" style="min-height: 150px;"></div>
                     <div id="ownerControls" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #30363d;">
                         <button class="btn btn-green" onclick="startGameAction()">🚀 ابدأ اللعبة الآن</button>
                     </div>
                 </div>
-
                 <div class="room-column">
-                    <h3 style="margin-top: 0; border-bottom: 1px solid #30363d; padding-bottom: 8px;">💬 شات بوكس الروم (مباشر)</h3>
+                    <h3>💬 الشات المباشر</h3>
                     <div class="chat-area">
                         <div class="chat-messages" id="chatMessagesContainer"></div>
                         <div class="chat-input-group">
-                            <input type="text" id="chatMessageInput" class="input-field" style="margin:0; flex-grow:1;" placeholder="اكتب رسالتك هنا..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
-                            <button class="btn btn-blue" style="width: auto; padding: 0 20px;" onclick="sendChatMessage()">إرسال</button>
+                            <input type="text" id="chatMessageInput" class="input-field" style="margin:0; flex-grow:1;" placeholder="اكتب رسالة..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                            <button class="btn btn-blue" style="width: auto;" onclick="sendChatMessage()">إرسال</button>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <button class="btn btn-red" style="margin-top: 20px;" onclick="leaveRoomAction()">🚪 مغادرة الغرفة والعودة للوبي</button>
+            <button class="btn btn-red" style="margin-top: 20px;" onclick="leaveRoomAction()">🚪 مغادرة والغاء الروم</button>
         </div>
 
         <div id="gameplayScreen" class="screen">
             <div class="role-card">
-                <h2 style="margin: 0;">🔍 هويتك السرية في هذا الدور هي:</h2>
-                <div id="mySecretRole" class="role-title">جاري تحديد دورك...</div>
-                <p id="roleDescription" style="color: #e1e1e1; margin-top: 10px; font-size: 16px;">استعد لبدء النقاش والتحقيق!</p>
-                <div class="timer-badge">⏳ الوقت المتبقي: <span id="gameTimer">05:00</span></div>
+                <h2>🔍 هويتك السرية هي:</h2>
+                <div id="mySecretRole" class="role-title">جاري التحديد...</div>
+                <p id="roleDescription" style="color: #e1e1e1; margin-top: 10px; font-size: 16px;"></p>
+                <div class="timer-badge">⏳ المتبقي: <span id="gameTimer">05:00</span></div>
             </div>
-
             <div class="room-layout">
                 <div class="room-column" style="flex: 2;">
-                    <h3 style="margin-top: 0; border-bottom: 1px solid #30363d; padding-bottom: 8px;">💬 شات التحقيق والمناقشة الحية</h3>
+                    <h3>💬 شات التحقيق</h3>
                     <div class="chat-area">
                         <div class="chat-messages" id="gameChatMessagesContainer"></div>
                         <div class="chat-input-group">
-                            <input type="text" id="gameChatMessageInput" class="input-field" style="margin:0; flex-grow:1;" placeholder="ناقش اللعيبة واكشف الحرامي..." onkeypress="if(event.key === 'Enter') sendGameChatMessage()">
-                            <button class="btn btn-blue" style="width: auto; padding: 0 20px;" onclick="sendGameChatMessage()">إرسال</button>
+                            <input type="text" id="gameChatMessageInput" class="input-field" style="margin:0; flex-grow:1;" placeholder="ناقش واكشف الحرامي..." onkeypress="if(event.key === 'Enter') sendGameChatMessage()">
+                            <button class="btn btn-blue" style="width: auto;" onclick="sendGameChatMessage()">إرسال</button>
                         </div>
                     </div>
                 </div>
-
-                <div class="room-column" style="flex: 1;">
-                    <h3 style="margin-top: 0; border-bottom: 1px solid #30363d; padding-bottom: 8px;">👥 المتواجدين في الجولة</h3>
-                    <div id="gamePlayersListContainer" style="font-size: 15px;"></div>
+                <div class="room-column">
+                    <h3>👥 المشتبه فيهم في الدور</h3>
+                    <div id="gamePlayersListContainer"></div>
                 </div>
             </div>
-
             <div id="ownerEndControls" style="display: none; margin-top: 20px;">
-                <button class="btn btn-red" onclick="endGameAction()">🛑 إنهاء الجولة والعودة للغرفة</button>
+                <button class="btn btn-red" onclick="endGameAction()">🛑 إنهاء الجولة</button>
             </div>
         </div>
-
     </div>
 
     <script>
@@ -173,183 +141,116 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // سحب الاسم من الرابط
         const urlParams = new URLSearchParams(window.location.search);
         const myUsername = urlParams.get('user') || "لاعب_" + Math.floor(1000 + Math.random() * 9000);
         document.getElementById('myUsernameDisplay').innerText = myUsername;
 
-        let currentRoomId = null;
-        let isIAmOwner = false;
-        let timerInterval = null;
-        let myPlayerKeyInRoom = null;
+        let currentRoomId = null, isIAmOwner = false, timerInterval = null, myPlayerKeyInRoom = null;
 
-        function triggerAlert(msg, isError = false) {
-            const alertBox = document.getElementById('alertBox');
-            if(alertBox) {
-                alertBox.innerText = msg;
-                alertBox.className = isError ? "alert-error" : "alert-success";
-                alertBox.style.display = "block";
-                setTimeout(() => { alertBox.style.display = "none"; }, 3500);
-            }
+        function triggerAlert(msg) {
+            const box = document.getElementById('alertBox');
+            box.innerText = msg; box.className = "alert-error";
+            box.style.display = "block"; setTimeout(() => { box.style.display = "none"; }, 3500);
         }
 
-        function switchScreen(screenId) {
+        function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById(screenId).classList.add('active-screen');
+            document.getElementById(id).classList.add('active-screen');
         }
 
         function createRoomAction() {
-            const roomName = document.getElementById('newRoomName').value.trim();
-            if (!roomName) { triggerAlert("من فضلك أدخل اسم الروم أولاً!", true); return; }
-
-            const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+            const name = document.getElementById('newRoomName').value.trim();
+            if (!name) { triggerAlert("برجاء إدخال اسم الغرفة أولاً!"); return; }
+            
+            const generatedCode = Math.floor(1000 + Math.random() * 9000).toString();
             const roomRef = db.ref('rooms').push();
             currentRoomId = roomRef.key;
             isIAmOwner = true;
 
-            const roomData = {
-                name: roomName,
-                code: roomCode,
+            roomRef.set({
+                name: name,
+                code: generatedCode,
                 owner: myUsername,
                 status: "waiting"
-            };
-
-            roomRef.set(roomData).then(() => {
+            }).then(() => {
                 const pRef = db.ref(`rooms/${currentRoomId}/players`).push();
                 myPlayerKeyInRoom = pRef.key;
                 pRef.set({ name: myUsername, role: "Owner" }).then(() => {
-                    enterRoomLocalSetup(roomName, roomCode, true, currentRoomId);
+                    enterRoomLocalSetup(name, generatedCode, true, currentRoomId);
                 });
-            }).catch(err => triggerAlert("خطأ أثناء إنشاء الروم: " + err.message, true));
-        }
-
-        function joinRoomByCodeAction() {
-            const codeInput = document.getElementById('searchRoomCode').value.trim();
-            if (!codeInput) { triggerAlert("من فضلك أدخل كود الروم المكون من 4 أرقام!", true); return; }
-
-            db.ref('rooms').once('value').then((snapshot) => {
-                const rooms = snapshot.val();
-                let foundId = null, foundData = null;
-
-                if (rooms) {
-                    for (let id in rooms) {
-                        if (rooms[id].code === codeInput) { foundId = id; foundData = rooms[id]; break; }
-                    }
-                }
-
-                if (foundId) {
-                    if (foundData.status === "playing") { triggerAlert("اللعبة بدأت بالفعل داخل هذه الروم!", true); return; }
-                    const pCount = foundData.players ? Object.keys(foundData.players).length : 0;
-                    if (pCount >= 8) { triggerAlert("الروم ممتلئ! (الحد الأقصى 8 لاعبين)", true); return; }
-
-                    const pRef = db.ref(`rooms/${foundId}/players`).push();
-                    myPlayerKeyInRoom = pRef.key;
-                    isIAmOwner = false;
-
-                    pRef.set({ name: myUsername, role: "Player" }).then(() => {
-                        enterRoomLocalSetup(foundData.name, foundData.code, false, foundId);
-                    });
-                } else {
-                    triggerAlert("الكود خاطئ أو الروم غير موجود!", true);
-                }
             });
         }
 
         function enterRoomLocalSetup(name, code, isOwner, roomId) {
-            currentRoomId = roomId;
-            isIAmOwner = isOwner;
-
+            currentRoomId = roomId; isIAmOwner = isOwner;
             document.getElementById('roomTitle').innerText = name;
             document.getElementById('roomCode').innerText = "#" + code;
             document.getElementById('ownerControls').style.display = isOwner ? "block" : "none";
-
             switchScreen('roomScreen');
 
-            // 1. مراقبة اللاعبين بشكل مستمر
+            // مراقبة قائمة اللعيبة أونلاين
             db.ref(`rooms/${roomId}/players`).on('value', (snapshot) => {
                 const players = snapshot.val();
                 const container = document.getElementById('playersContainer');
                 container.innerHTML = "";
-                let amIStillHere = false;
+                let iAmInList = false;
 
                 if (players) {
                     for (let id in players) {
-                        const p = players[id];
-                        if (p.name === myUsername) { amIStillHere = true; myPlayerKeyInRoom = id; }
-
-                        let btnHtml = "";
-                        if (p.role === "Owner") {
-                            btnHtml = '<span class="host-badge">👑 المالك</span>';
-                        } else if (isIAmOwner) {
-                            btnHtml = `<div>
-                                <button class="action-mini-btn" style="background-color:#1f6feb; color:white;" onclick="transferOwnerOnline('${id}', '${p.name}')">نقل الملكية</button>
-                                <button class="action-mini-btn" style="background-color:#da3637; color:white;" onclick="kickPlayerOnline('${id}')">طرد</button>
-                            </div>`;
-                        }
-                        container.innerHTML += `<div class="player-row"><span>👤 ${p.name}</span>${btnHtml}</div>`;
+                        if (players[id].name === myUsername) { iAmInList = true; myPlayerKeyInRoom = id; }
+                        container.innerHTML += `<div class="player-row"><span>👤 ${players[id].name}</span>${players[id].role === 'Owner' ? '<span class="host-badge">👑 المالك</span>':''}</div>`;
                     }
                 }
-
-                if (!amIStillHere && !isIAmOwner) {
-                    exitRoomUIReset();
-                    triggerAlert("تم طردك أو إغلاق الغرفة!", true);
-                }
+                if (!iAmInList && !isIAmOwner) { exitRoomUIReset(); }
             });
 
-            // 2. مراقبة حالة اللعبة (تحديث الشاشات متزامن)
+            // مراقبة حالة الجيم (ابدأ / انتظر) لكل المتصلين في نفس اللحظة
             db.ref(`rooms/${roomId}/status`).on('value', (snapshot) => {
                 const status = snapshot.val();
-                if (status === "playing") {
-                    setupActiveGameplayMode();
-                } else if (status === "waiting") {
-                    if (timerInterval) clearInterval(timerInterval);
-                    switchScreen('roomScreen');
-                }
+                if (status === "playing") setupActiveGameplayMode();
+                else if (status === "waiting") { if (timerInterval) clearInterval(timerInterval); switchScreen('roomScreen'); }
             });
 
-            // 3. شات اللوبي المباشر
+            // مزامنة الشات العادي
             db.ref(`rooms/${roomId}/chat`).on('value', (snapshot) => {
                 const chats = snapshot.val();
-                const chatContainer = document.getElementById('chatMessagesContainer');
-                chatContainer.innerHTML = "";
-                if (chats) {
-                    for (let id in chats) {
-                        chatContainer.innerHTML += `<div class="chat-msg-item"><span class="chat-msg-user">${chats[id].user}:</span> <span>${chats[id].text}</span></div>`;
-                    }
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }
+                const c = document.getElementById('chatMessagesContainer'); c.innerHTML = "";
+                if (chats) { for (let id in chats) { c.innerHTML += `<div><b>${chats[id].user}:</b> ${chats[id].text}</div>`; } c.scrollTop = c.scrollHeight; }
             });
         }
 
-        // ==================== سيستم توزيع الأدوار المتزامن بنسبة 100% ====================
+        // تصليح الـ Logic الجوهري لبدء الجيم أونلاين مع صحابك
         function startGameAction() {
             db.ref(`rooms/${currentRoomId}/players`).once('value').then((snapshot) => {
-                const players = snapshot.val();
-                if (!players) return;
+                const playersObj = snapshot.val();
+                if (!playersObj) return;
 
-                const keys = Object.keys(players);
-                if (keys.length < 2) { triggerAlert("يجب دخول لاعبين على الأقل لبدء التحدي!", true); return; }
-
+                const keys = Object.keys(playersObj);
+                
+                // خلط اللاعبين لتوزيع الأدوار
                 let shuffled = [...keys].sort(() => Math.random() - 0.5);
-                let thiefKey = shuffled[0];
-                let bankKey = shuffled[1];
+                let thiefId = shuffled[0];
+                let bankId = shuffled[1] || shuffled[0]; // لو العدد قليل يختار المتاح
 
                 let updates = {};
-                keys.forEach(key => {
-                    let role = "👮‍♂️ عسكري / مخبر سري";
-                    let desc = "مهمتك: ركز في كلام الشات، وحقق مع المشتبه فيهم عشان تكشف الحرامي وتنقذ البنك!";
+                keys.forEach((key) => {
+                    let roleName = "👮‍♂️ عسكري ومخبر سري";
+                    let roleDesc = "مهمتك: ركز في رسايل الشات وحقق مع المشتبه فيهم عشان تكشف الحرامي قبل ما يهرب!";
                     
-                    if (key === thiefKey) {
-                        role = "🥷 الحرامي";
-                        desc = "مهمتك: اخدع الكل! متخلش العساكر يكتشفوا هويتك وحاول تلمح لمكان البنك.";
-                    } else if (key === bankKey) {
-                        role = "🏦 البنك المستهدف";
-                        desc = "أنت الخزنة! حاول تلمح للعساكر بمكانك من غير ما الحرامي يفهمك ويقضي عليك.";
+                    if (key === thiefId) {
+                        roleName = "🥷 الحرامي";
+                        roleDesc = "مهمتك: شتت العساكر في الشات ومخليهمش يكتشفوا هويتك السرية خالص!";
+                    } else if (key === bankId && keys.length > 1) {
+                        roleName = "🏦 البنك المستهدف";
+                        roleDesc = "أنت البنك! حاول تلمح للعساكر بهويتك بذكاء من غير ما الحرامي يلقط كلامك.";
                     }
 
-                    updates[`rooms/${currentRoomId}/players/${key}/ingameRole`] = role;
-                    updates[`rooms/${currentRoomId}/players/${key}/ingameDesc`] = desc;
+                    updates[`rooms/${currentRoomId}/players/${key}/ingameRole`] = roleName;
+                    updates[`rooms/${currentRoomId}/players/${key}/ingameDesc`] = roleDesc;
                 });
 
+                // تغيير الحالة لـ playing يقلب الشاشة عند الكل فوراً
                 updates[`rooms/${currentRoomId}/status`] = "playing";
                 db.ref().update(updates);
             });
@@ -358,8 +259,8 @@
         function setupActiveGameplayMode() {
             switchScreen('gameplayScreen');
             document.getElementById('ownerEndControls').style.display = isIAmOwner ? "block" : "none";
-
-            // سحب الدور السري الفعلي الخاص بي من السيرفر
+            
+            // سحب دوري السري من السيرفر وعرضه
             db.ref(`rooms/${currentRoomId}/players/${myPlayerKeyInRoom}`).once('value').then((snapshot) => {
                 const myData = snapshot.val();
                 if (myData) {
@@ -368,150 +269,77 @@
                 }
             });
 
-            // تحديث قائمة المتواجدين في الجولة
+            // عرض قائمة المشتبه فيهم في شاشة اللعب
             db.ref(`rooms/${currentRoomId}/players`).once('value').then((snapshot) => {
-                const players = snapshot.val();
-                const container = document.getElementById('gamePlayersListContainer');
-                container.innerHTML = "";
-                if (players) {
-                    for (let id in players) {
-                        container.innerHTML += `<div style="padding: 8px; border-bottom: 1px solid #21262d; color:#8b949e;">👤 ${players[id].name} <span style="color:#58a6ff; font-size:12px;">(مشتبه به)</span></div>`;
+                const list = snapshot.val();
+                const container = document.getElementById('gamePlayersListContainer'); container.innerHTML = "";
+                if (list) {
+                    for (let id in list) {
+                        container.innerHTML += `<div style="padding: 8px; border-bottom: 1px solid #21262d; color: #8b949e;">👤 ${list[id].name}</div>`;
                     }
                 }
             });
 
-            // شات التحقيق المنفصل
+            // شات التحقيق المباشر
             db.ref(`rooms/${currentRoomId}/gameChat`).on('value', (snapshot) => {
                 const chats = snapshot.val();
-                const chatContainer = document.getElementById('gameChatMessagesContainer');
-                chatContainer.innerHTML = "";
-                if (chats) {
-                    for (let id in chats) {
-                        chatContainer.innerHTML += `<div class="chat-msg-item"><span class="chat-msg-user">${chats[id].user}:</span> <span>${chats[id].text}</span></div>`;
-                    }
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }
+                const c = document.getElementById('gameChatMessagesContainer'); c.innerHTML = "";
+                if (chats) { for (let id in chats) { c.innerHTML += `<div><b>${chats[id].user}:</b> ${chats[id].text}</div>`; } c.scrollTop = c.scrollHeight; }
             });
 
-            // العداد التنازلي للجولة
+            // عداد الجولة (5 دقائق)
             if (timerInterval) clearInterval(timerInterval);
-            let timerSeconds = 300;
+            let time = 300;
             timerInterval = setInterval(() => {
-                timerSeconds--;
-                if (timerSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    document.getElementById('gameTimer').innerText = "انتهى الوقت!";
-                    if (isIAmOwner) endGameAction();
-                } else {
-                    let min = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
-                    let sec = (timerSeconds % 60).toString().padStart(2, '0');
-                    document.getElementById('gameTimer').innerText = `${min}:${sec}`;
-                }
+                time--;
+                if (time <= 0) { clearInterval(timerInterval); if (isIAmOwner) endGameAction(); }
+                else { document.getElementById('gameTimer').innerText = `${Math.floor(time/60).toString().padStart(2,'0')}:${(time%60).toString().padStart(2,'0')}`; }
             }, 1000);
         }
 
         function sendChatMessage() {
-            const input = document.getElementById('chatMessageInput');
-            const txt = input.value.trim();
-            if (!txt || !currentRoomId) return;
-            db.ref(`rooms/${currentRoomId}/chat`).push().set({ user: myUsername, text: txt });
-            input.value = "";
+            const i = document.getElementById('chatMessageInput'); if (!i.value.trim()) return;
+            db.ref(`rooms/${currentRoomId}/chat`).push().set({ user: myUsername, text: i.value.trim() }); i.value = "";
         }
 
         function sendGameChatMessage() {
-            const input = document.getElementById('gameChatMessageInput');
-            const txt = input.value.trim();
-            if (!txt || !currentRoomId) return;
-            db.ref(`rooms/${currentRoomId}/gameChat`).push().set({ user: myUsername, text: txt });
-            input.value = "";
-        }
-
-        function kickPlayerOnline(playerKey) {
-            if (confirm("طرد هذا اللاعب نهائياً؟")) {
-                db.ref(`rooms/${currentRoomId}/players/${playerKey}`).remove();
-            }
-        }
-
-        function transferOwnerOnline(playerKey, playerName) {
-            if (confirm(`تحويل المالك إلى ${playerName}؟`)) {
-                db.ref(`rooms/${currentRoomId}/players/${playerKey}/role`).set("Owner").then(() => {
-                    db.ref(`rooms/${currentRoomId}/players/${myPlayerKeyInRoom}/role`).set("Player");
-                    isIAmOwner = false;
-                    db.ref(`rooms/${currentRoomId}/owner`).set(playerName);
-                    document.getElementById('ownerControls').style.display = "none";
-                    document.getElementById('ownerEndControls').style.display = "none";
-                });
-            }
+            const i = document.getElementById('gameChatMessageInput'); if (!i.value.trim()) return;
+            db.ref(`rooms/${currentRoomId}/gameChat`).push().set({ user: myUsername, text: i.value.trim() }); i.value = "";
         }
 
         function endGameAction() {
-            if (confirm("إنهاء الجولة الحالية وإرجاع اللاعبين للانتظار؟")) {
-                db.ref(`rooms/${currentRoomId}/gameChat`).remove();
-                db.ref(`rooms/${currentRoomId}/status`).set("waiting");
-            }
-        }
-
-        function refreshRoomsList() {
-            db.ref('rooms').once('value').then((snapshot) => {
-                const rooms = snapshot.val();
-                const container = document.getElementById('roomsContainer');
-                container.innerHTML = "";
-
-                if (!rooms) {
-                    container.innerHTML = '<p style="text-align: center; color: #8b949e; padding: 20px;">لا توجد غرف متاحة حالياً.</p>';
-                    return;
-                }
-
-                for (let id in rooms) {
-                    const r = rooms[id];
-                    const count = r.players ? Object.keys(r.players).length : 0;
-                    container.innerHTML += `
-                        <div class="room-row">
-                            <div>
-                                <strong style="color:#fff;">${r.name}</strong> <span style="color:#f1c40f;">(#${r.code})</span>
-                                <br><small style="color:#58a6ff;">اللاعبين: ${count}/8 | الحالة: ${r.status === 'playing' ? 'في جولة 🎮' : 'انتظار 🕒'}</small>
-                            </div>
-                            <button class="join-mini-btn" onclick="directJoinFromList('${id}', '${r.name}', '${r.code}')">انضمام سريع</button>
-                        </div>`;
-                }
-            });
-        }
-
-        function directJoinFromList(roomId, rName, rCode) {
-            isIAmOwner = false;
-            const pRef = db.ref(`rooms/${roomId}/players`).push();
-            myPlayerKeyInRoom = pRef.key;
-            pRef.set({ name: myUsername, role: "Player" }).then(() => {
-                enterRoomLocalSetup(rName, rCode, false, roomId);
-            });
+            db.ref(`rooms/${currentRoomId}/gameChat`).remove();
+            db.ref(`rooms/${currentRoomId}/status`).set("waiting");
         }
 
         function leaveRoomAction() {
-            if (!currentRoomId) return;
+            if (isIAmOwner) db.ref(`rooms/${currentRoomId}`).remove().then(() => location.reload());
+            else db.ref(`rooms/${currentRoomId}/players/${myPlayerKeyInRoom}`).remove().then(() => location.reload());
+        }
 
-            db.ref(`rooms/${currentRoomId}/players`).off();
-            db.ref(`rooms/${currentRoomId}/chat`).off();
-            db.ref(`rooms/${currentRoomId}/status`).off();
+        function refreshRoomsList() {
+            db.ref('rooms').once('value', (snapshot) => {
+                const rooms = snapshot.val(); const container = document.getElementById('roomsContainer'); container.innerHTML = "";
+                if (!rooms) { container.innerHTML = '<p style="text-align:center;color:#8b949e;padding:20px;">لا توجد غرف مفتوحة الآن.</p>'; return; }
+                for (let id in rooms) {
+                    container.innerHTML += `<div class="room-row"><div><b>${rooms[id].name}</b> (#${rooms[id].code})</div><button class="join-mini-btn" onclick="directJoinFromList('${id}','${rooms[id].name}','${rooms[id].code}')">انضمام سريع</button></div>`;
+                }
+            });
+        }
 
-            if (isIAmOwner) {
-                // المالك يقفل الروم بالكامل لو خرج
-                db.ref(`rooms/${currentRoomId}`).remove().then(() => exitRoomUIReset());
-            } else {
-                // اللاعب العادي يمسح نفسه فقط
-                db.ref(`rooms/${currentRoomId}/players/${myPlayerKeyInRoom}`).remove().then(() => exitRoomUIReset());
-            }
+        function directJoinFromList(id, name, code) {
+            isIAmOwner = false;
+            const pRef = db.ref(`rooms/${id}/players`).push();
+            myPlayerKeyInRoom = pRef.key;
+            pRef.set({ name: myUsername, role: "Player" }).then(() => { enterRoomLocalSetup(name, code, false, id); });
         }
 
         function exitRoomUIReset() {
-            currentRoomId = null;
-            isIAmOwner = false;
-            myPlayerKeyInRoom = null;
+            currentRoomId = null; isIAmOwner = false; myPlayerKeyInRoom = null;
             if (timerInterval) clearInterval(timerInterval);
-            switchScreen('lobbyScreen');
-            refreshRoomsList();
+            switchScreen('lobbyScreen'); refreshRoomsList();
         }
 
-        // تحديث أوتوماتيكي عند الفتح
         setTimeout(refreshRoomsList, 500);
     </script>
 </body>
