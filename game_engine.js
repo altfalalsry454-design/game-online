@@ -6,36 +6,32 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let roomId = null;
-let playerName = "لاعب_" + Math.floor(Math.random() * 999);
+let myName = "لاعب_" + Math.floor(Math.random() * 999);
 
 function createRoom() {
-    const name = document.getElementById('roomName').value;
-    const ref = db.ref('rooms').push();
-    roomId = ref.key;
-    ref.set({ name: name, status: "waiting", host: playerName });
+    roomId = db.ref('rooms').push().key;
+    db.ref(`rooms/${roomId}`).set({ name: document.getElementById('roomName').value, status: "waiting" });
     
     document.getElementById('lobby').classList.remove('active-screen');
     document.getElementById('gameRoom').classList.add('active-screen');
-    document.getElementById('roomTitle').innerText = name;
     document.getElementById('startBtn').style.display = "block";
 
-    // مراقبة حالة الروم
+    // المراقب الذكي: أي تغيير في حالة الروم هيحدث الشاشة فوراً
     db.ref(`rooms/${roomId}`).on('value', (snap) => {
-        if(snap.val().status === "playing") {
+        const data = snap.val();
+        if(data.status === "playing") {
             document.getElementById('gameRoom').classList.remove('active-screen');
             document.getElementById('gamePlay').classList.add('active-screen');
-            document.getElementById('myRole').innerText = "تم توزيع الأدوار! دورك هو: " + (snap.val().roles?.[playerName] || "مراقب");
+            document.getElementById('myRole').innerText = "دورك هو: " + (data.players ? data.players[myName] : "جارٍ التحديد...");
         }
     });
 }
 
 function startGame() {
     const roles = ["الحرامي", "البنك", "العسكري"];
-    let gameRoles = {};
-    gameRoles[playerName] = roles[Math.floor(Math.random() * roles.length)];
+    let updates = { status: "playing", players: {} };
+    updates.players[myName] = roles[Math.floor(Math.random() * roles.length)];
     
-    db.ref(`rooms/${roomId}`).update({ 
-        status: "playing",
-        roles: gameRoles 
-    });
+    // تحديث السيرفر بالكامل
+    db.ref(`rooms/${roomId}`).update(updates);
 }
