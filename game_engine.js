@@ -1,37 +1,34 @@
-const firebaseConfig = {
-    apiKey: "AIzaSyDCYnbAcV0HtrSyRUorBQmXQuBJO7m1C4A",
-    databaseURL: "https://zerobaba-7733e-default-rtdb.firebaseio.com/"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-let roomId = null;
-let myName = "لاعب_" + Math.floor(Math.random() * 999);
-
-function createRoom() {
-    roomId = db.ref('rooms').push().key;
-    db.ref(`rooms/${roomId}`).set({ name: document.getElementById('roomName').value, status: "waiting" });
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة الحرامي والبنك - نسخة كاملة</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <style>
+        body { background: #0d1117; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .screen { display: none; } .active-screen { display: block; }
+        .btn { padding: 15px; margin: 10px; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; width: 220px; }
+        .btn-green { background: #238636; color: white; }
+    </style>
+</head>
+<body>
+    <div id="lobby" class="screen active-screen">
+        <h1>لعبة الحرامي والبنك</h1>
+        <input type="text" id="roomName" placeholder="اسم الروم..." style="padding: 10px;">
+        <button class="btn btn-green" onclick="createRoom()">إنشاء الروم</button>
+    </div>
     
-    document.getElementById('lobby').classList.remove('active-screen');
-    document.getElementById('gameRoom').classList.add('active-screen');
-    document.getElementById('startBtn').style.display = "block";
+    <div id="gameRoom" class="screen">
+        <h2 id="roomTitle"></h2>
+        <div id="statusText">في انتظار المالك لبدء اللعبة...</div>
+        <button id="startBtn" class="btn btn-green" style="display:none" onclick="startGame()">بدء توزيع الأدوار</button>
+    </div>
 
-    // المراقب الذكي: أي تغيير في حالة الروم هيحدث الشاشة فوراً
-    db.ref(`rooms/${roomId}`).on('value', (snap) => {
-        const data = snap.val();
-        if(data.status === "playing") {
-            document.getElementById('gameRoom').classList.remove('active-screen');
-            document.getElementById('gamePlay').classList.add('active-screen');
-            document.getElementById('myRole').innerText = "دورك هو: " + (data.players ? data.players[myName] : "جارٍ التحديد...");
-        }
-    });
-}
+    <div id="gamePlay" class="screen">
+        <h2 id="myRole" style="color: #f1c40f; font-size: 40px;"></h2>
+    </div>
 
-function startGame() {
-    const roles = ["الحرامي", "البنك", "العسكري"];
-    let updates = { status: "playing", players: {} };
-    updates.players[myName] = roles[Math.floor(Math.random() * roles.length)];
-    
-    // تحديث السيرفر بالكامل
-    db.ref(`rooms/${roomId}`).update(updates);
-}
+    <script src="game.js"></script>
+</body>
+</html>
